@@ -58,7 +58,6 @@ export interface IAlarmInfo {
   providedIn: 'root'
 })
 export class NotificationsService {
-  private notificationServiceSettings: Subscription;
   private notificationConfig: INotificationConfig;
   public notificationConfig$: BehaviorSubject<INotificationConfig> = new BehaviorSubject<INotificationConfig>(DefaultNotificationConfig);
 
@@ -85,7 +84,7 @@ export class NotificationsService {
     private deltaService: SignalKDeltaService,
     ) {
     // Observer of Notification Servicer configuration
-    this.notificationServiceSettings = this.appSettingsService.getNotificationServiceConfigAsO().subscribe((config: INotificationConfig) => {
+    this.appSettingsService.getNotificationServiceConfigAsO().subscribe((config: INotificationConfig) => {
       this.notificationConfig = config;
       this.notificationConfig$.next(config); // push to alrm menu
       if (this.notificationConfig.disableNotifications) {

@@ -3,7 +3,7 @@ import { Observable , BehaviorSubject, Subscription } from 'rxjs';
 import { IPathData, IPathValueData, IPathMetaData, IDefaultSource, IMeta } from "./app-interfaces";
 import { IZone, IZoneState } from './app-settings.interfaces';
 import { AppSettingsService } from './app-settings.service';
-import { SignalKDeltaService } from './signalk-delta.service';
+import { SignalKDeltaService, INotificationDelta } from './signalk-delta.service';
 import { UnitsService, IUnitDefaults, IUnitGroup } from './units.service';
 import { NotificationsService } from './notifications.service';
 import * as Qty from 'js-quantities';
@@ -244,21 +244,36 @@ export class SignalKService {
       let methods;
       switch (state) {
         // @ts-ignore
-        case IZoneState.alarm:
-          stateString = "alarm"
+        case IZoneState.nominal:
+          stateString = "nominal"
+          methods = [ 'visual', 'sound' ];
+          break;
+
+        case IZoneState.emergency:
+          stateString = "emergency"
           methods = [ 'visual', 'sound' ];
           break;
 
         // @ts-ignore
-        case IZoneState.warning:
-            stateString = "warn"
+        case IZoneState.alarm:
+            stateString = "alarm"
             methods = [ 'visual','sound' ];
             break;
 
+        case IZoneState.warn:
+          stateString = "warn"
+          methods = [ 'visual', 'sound' ];
+          break;
+
+        // @ts-ignore
+        case IZoneState.alert:
+            stateString = "alert"
+            methods = [ 'visual','sound' ];
+            break;
       }
 
 
-      //start
+      // Send Notification
       this.notificationsService.addAlarm(pathSelf, {
         method: methods,
         state: stateString,
@@ -303,6 +318,7 @@ export class SignalKService {
 
   }
 
+    //TODO: do we still need this?
   private setDefaultSource(source: IDefaultSource): void {
     let pathSelf: string = source.path.replace(this.selfurn, 'self');
     let pathIndex = this.paths.findIndex(pathObject => pathObject.path == pathSelf);
@@ -443,5 +459,4 @@ export class SignalKService {
     console.log("Unit type: " + pathUnitType + ", found for path: " + path + "\nbut Kip does not support it.");
     return { default: 'unitless', conversions: this.conversionList };
   }
-
 }

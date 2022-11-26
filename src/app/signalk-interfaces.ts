@@ -146,7 +146,6 @@ export interface ISignalKMetadata {
   units: string;        // required if value is present. describe the type of data
   timeout?: number;     // tells the consumer how long it should consider the value valid
   properties: {}; // Not defined by Kip. Used by GPS and Ship details and other complexe data types
-  method?: Method[];
   displayScale?: {      //This object provides information regarding the recommended type and extent of the scale used for displaying values.
     lower?: number;
     upper?: number;

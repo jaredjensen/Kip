@@ -114,20 +114,20 @@ export class WidgetRaceTimerComponent implements OnInit, OnDestroy, AfterViewChe
         if (newValue > 0) {
           this.IZoneState = IZoneState.normal;
         } else if (newValue > -100) {
-          this.IZoneState = IZoneState.alarm;
+          this.IZoneState = IZoneState.warn;
         } else if (newValue > -300) {
-          this.IZoneState = IZoneState.warning;
+          this.IZoneState = IZoneState.alert;
         } else {
           this.IZoneState = IZoneState.normal;
         }
 
        //start flashing if alarm
-       if (this.IZoneState == IZoneState.alarm && !this.flashInterval) {
+       if (this.IZoneState == IZoneState.warn && !this.flashInterval) {
         this.flashInterval = setInterval(() => {
           this.flashOn = !this.flashOn;
           this.updateCanvas();
         }, 500); // used to flash stuff in alarm
-      } else if (this.IZoneState != IZoneState.alarm) {
+      } else if (this.IZoneState != IZoneState.warn) {
         // stop alarming if not in alarm state
         if (this.flashInterval) {
           clearInterval(this.flashInterval);
@@ -292,7 +292,7 @@ export class WidgetRaceTimerComponent implements OnInit, OnDestroy, AfterViewChe
 
     // get color based on zone
     switch (this.IZoneState) {
-      case IZoneState.alarm:
+      case IZoneState.warn:
 
         if (this.flashOn) {
           this.canvasCtx.fillStyle = window.getComputedStyle(this.warnElement.nativeElement).color;
@@ -305,7 +305,7 @@ export class WidgetRaceTimerComponent implements OnInit, OnDestroy, AfterViewChe
         }
         break;
 
-      case IZoneState.warning:
+      case IZoneState.alert:
         this.canvasCtx.fillStyle = window.getComputedStyle(this.warnElement.nativeElement).color;
         break;
 

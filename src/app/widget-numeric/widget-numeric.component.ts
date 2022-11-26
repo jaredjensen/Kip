@@ -276,7 +276,7 @@ export class WidgetNumericComponent implements OnInit, OnDestroy, AfterViewCheck
         }
         break;
 
-      case IZoneState.warning:
+      case IZoneState.alert:
         this.canvasCtx.fillStyle = window.getComputedStyle(this.warnElement.nativeElement).color;
         break;
 

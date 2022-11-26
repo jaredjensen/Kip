@@ -132,10 +132,10 @@ export class WidgetGaugeNgRadialComponent implements OnInit, OnDestroy, AfterCon
 
         // set colors for zone state
         switch (newValue.state) {
-          case IZoneState.warning:
+          case IZoneState.alert:
             this.gaugeOptions.colorValueText = getComputedStyle(this.warnDarkElement.nativeElement).color;
             break;
-          case IZoneState.alarm:
+          case IZoneState.warn:
             this.gaugeOptions.colorValueText = getComputedStyle(this.warnDarkElement.nativeElement).color;
             break;
           default:
@@ -262,14 +262,24 @@ export class WidgetGaugeNgRadialComponent implements OnInit, OnDestroy, AfterCon
         let upper = zone.upper || this.config.maxValue;
         let color: string;
         switch (zone.state) {
-          case 1:
+          case IZoneState.alert:
             color = getComputedStyle(this.warnElement.nativeElement).color;
             break;
-          case IZoneState.alarm:
+          case IZoneState.warn:
             color = getComputedStyle(this.warnDarkElement.nativeElement).color;
             break;
+
+          case IZoneState.alarm:
+            //TODO: add color - new spec level
+            break;
+
+          case IZoneState.emergency:
+            //TODO: fix color - new spec level
+            break;
+
           default:
             color = getComputedStyle(this.primaryElement.nativeElement).color;
+            break;
         }
 
         myZones.push({from: lower, to: upper, color: color});

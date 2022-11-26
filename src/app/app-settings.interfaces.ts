@@ -68,15 +68,19 @@ export interface IZone {
   uuid: string;
   path: string;
   unit: string;
-  upper: number;
-  lower: number;
+  upper?: number;
+  lower?: number;
+  message?: string;
   state: IZoneState;
 }
 
 export enum IZoneState {
-  normal = 0,
-  warning = 1,
-  alarm = 2,
+  normal = 0, // default state
+  alert = 1,
+  warn = 2,
+  alarm = 3,
+  emergency = 4,
+  nominal = 5 //special state meaning "in the normal operating range". Gauge implementation required see: https://signalk.org/specification/1.7.0/doc/data_model_metadata.html
 }
 
 export interface ISignalKUrl {

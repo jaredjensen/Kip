@@ -44,8 +44,10 @@
           <mat-cell class="dataCell" *matCellDef="let element" data-label="State: ">
             <div [ngSwitch]="element.state">
               <div *ngSwitchCase="0">Normal</div>
-              <div *ngSwitchCase="1">Warning</div>
-              <div *ngSwitchCase="2">Alarm</div>
+              <div *ngSwitchCase="1">Alert</div>
+              <div *ngSwitchCase="2">Warn</div>
+              <div *ngSwitchCase="3">Alarm</div>
+              <div *ngSwitchCase="4">Emergency</div>
             </div>
           </mat-cell>
         </ng-container>
