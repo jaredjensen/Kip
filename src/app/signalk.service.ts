@@ -1,16 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable , BehaviorSubject, Subscription } from 'rxjs';
-import { IPathData, IPathValueData, IPathMetaData, IDefaultSource, IMeta } from "./app-interfaces";
-import { IZone, IZoneState } from './app-settings.interfaces';
+import { IPathData, IPathValueData, IPathMetaData, IDefaultSource, IMeta } from "./app.interfaces";
 import { AppSettingsService } from './app-settings.service';
-import { SignalKDeltaService, INotificationDelta } from './signalk-delta.service';
+import { SignalKDeltaService } from './signalk-delta.service';
 import { UnitsService, IUnitDefaults, IUnitGroup } from './units.service';
 import { NotificationsService } from './notifications.service';
 import * as Qty from 'js-quantities';
 
 interface pathRegistrationValue {
   value: any;
-  state: IZoneState;
 };
 
 interface pathRegistration {
@@ -55,8 +53,6 @@ export class SignalKService {
   defaultUnits: IUnitDefaults;
   defaultUnitsSub: Subscription;
   conversionList: IUnitGroup[];
-  zonesSub: Subscription;
-  zones: Array<IZone> = [];
 
   constructor(
     private appSettingsService: AppSettingsService,
@@ -96,10 +92,6 @@ export class SignalKService {
     );
 
     this.conversionList = this.unitService.getConversions();
-
-    this.zonesSub = this.appSettingsService.getZonesAsO().subscribe(zones => {
-      this.zones = zones;
-    });
 
     // Observer of Delta service data path updates
     this.deltaService.subscribeDataPathsUpdates().subscribe((dataPath: IPathValueData) => {
@@ -144,9 +136,8 @@ export class SignalKService {
       return this.pathRegister[registerIndex].observable.asObservable();
     }
 
-    //find if we already have a value for this path to return.
+    // find if we already have a value for this path to return.
     let currentValue = null;
-    let state = IZoneState.normal;
     let pathIndex = this.paths.findIndex(pathObject => pathObject.path == path);
     if (pathIndex >= 0) { // exists
       if (source === null) {
@@ -156,14 +147,13 @@ export class SignalKService {
       } else if (source in this.paths[pathIndex].sources) {
         currentValue = this.paths[pathIndex].sources[source].value;
       }
-      state = this.paths[pathIndex].state;
     }
 
     let newRegister = {
       uuid: uuid,
       path: path,
       source: source,
-      observable: new BehaviorSubject<pathRegistrationValue>({ value: currentValue, state: state })
+      observable: new BehaviorSubject<pathRegistrationValue>({ value: currentValue})
     };
 
     //register
@@ -219,76 +209,10 @@ export class SignalKService {
           }
         },
         type: typeof(dataPath.value),
-        state: IZoneState.normal
       });
       // get new object index for further processing
       pathIndex = this.paths.findIndex(pathObject => pathObject.path == pathSelf);
     }
-
-    // Check for any zones to set state
-    let state: IZoneState = IZoneState.normal;
-    this.zones.forEach(zone => {
-      if (zone.path != pathSelf) { return; }
-      let lower = zone.lower || -Infinity;
-      let upper = zone.upper || Infinity;
-      let convertedValue = this.unitService.convertUnit(zone.unit, dataPath.value);
-      if (convertedValue >= lower && convertedValue <= upper) {
-        //in zone
-        state = Math.max(state, zone.state);
-      }
-    });
-    // if we're not in alarm, and new state is alarm, sound the alarm!
-    // @ts-ignore
-    if (state != IZoneState.normal && state != this.paths[pathIndex].state) {
-      let stateString; // notif service needs string....
-      let methods;
-      switch (state) {
-        // @ts-ignore
-        case IZoneState.nominal:
-          stateString = "nominal"
-          methods = [ 'visual', 'sound' ];
-          break;
-
-        case IZoneState.emergency:
-          stateString = "emergency"
-          methods = [ 'visual', 'sound' ];
-          break;
-
-        // @ts-ignore
-        case IZoneState.alarm:
-            stateString = "alarm"
-            methods = [ 'visual','sound' ];
-            break;
-
-        case IZoneState.warn:
-          stateString = "warn"
-          methods = [ 'visual', 'sound' ];
-          break;
-
-        // @ts-ignore
-        case IZoneState.alert:
-            stateString = "alert"
-            methods = [ 'visual','sound' ];
-            break;
-      }
-
-
-      // Send Notification
-      this.notificationsService.addAlarm(pathSelf, {
-        method: methods,
-        state: stateString,
-        message: pathSelf + ' value in ' + stateString,
-        timestamp: Date.now().toString(),
-      })
-    }
-
-    // if we're in alarm, and new state is not alarm, stop the alarm
-    // @ts-ignore
-    if (this.paths[pathIndex].state != IZoneState.normal && state == IZoneState.normal) {
-      this.notificationsService.deleteAlarm(pathSelf);
-    }
-
-    this.paths[pathIndex].state = state;
 
     // push it to any subscriptions of that data
     this.pathRegister.filter(pathRegister => pathRegister.path == pathSelf).forEach(
@@ -305,11 +229,9 @@ export class SignalKService {
         }
         if (source !== null) {
           pathRegister.observable.next({
-            value: this.paths[pathIndex].sources[source].value,
-            state: this.paths[pathIndex].state
+            value: this.paths[pathIndex].sources[source].value
           });
         }
-
       }
     );
 
@@ -338,8 +260,7 @@ export class SignalKService {
         defaultSource: null,
         sources: {},
         meta: meta.meta,
-        type: null,
-        state: IZoneState.normal
+        type: null
       });
     }
   }

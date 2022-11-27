@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { WidgetManagerService, IWidget, IWidgetSvcConfig } from '../widget-manager.service';
 import { TimersService } from '../timers.service';
-import { IZoneState } from "../app-settings.interfaces";
+import { IZoneState } from "../app.interfaces";
 import { AppSettingsService } from '../app-settings.service';
 
 

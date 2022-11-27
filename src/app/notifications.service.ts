@@ -8,7 +8,7 @@ import { AppSettingsService } from "./app-settings.service";
 import { INotificationConfig } from './app-settings.interfaces';
 import { DefaultNotificationConfig } from './config.blank.notification.const';
 import { SignalKDeltaService, INotificationDelta, IStreamStatus } from './signalk-delta.service';
-import { INotification } from "./app-interfaces";
+import { INotification } from "./app.interfaces";
 import { Howl } from 'howler';
 
 const alarmTrack = {

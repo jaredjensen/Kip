@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnChanges, SimpleChange  } from '@angular/core';
 import { SignalKService } from '../signalk.service';
-import { IPathMetaData } from "../app-interfaces";
+import { IPathMetaData } from "../app.interfaces";
 import { UnitsService, IUnitGroup } from '../units.service';
 import { FormGroup, FormControl,Validators } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';

@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewCh
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 
-import { IZoneState } from "../app-settings.interfaces";
+import { IZoneState } from "../app.interfaces";
 import { AppSettingsService } from '../app-settings.service';
 import { SignalKService } from '../signalk.service';
 import { UnitsService } from '../units.service';
@@ -131,7 +131,7 @@ export class WidgetNumericComponent implements OnInit, OnDestroy, AfterViewCheck
     this.valueSub = this.SignalKService.subscribePath(this.widgetUUID, this.config.paths['numericPath'].path, this.config.paths['numericPath'].source).subscribe(
       newValue => {
         this.dataValue = newValue.value;
-        this.IZoneState = newValue.state;
+        //TODO: updatethis.IZoneState = newValue.state;
         //start flashing if alarm
         if (this.IZoneState == IZoneState.alarm && !this.flashInterval) {
           this.flashInterval = setInterval(() => {

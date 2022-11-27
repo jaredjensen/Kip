@@ -7,8 +7,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { AppSettingsService } from '../app-settings.service';
-import { IPathMetaData } from "../app-interfaces";
-import { IZone } from "../app-settings.interfaces";
+import { ZonesService, IZonesRegistry } from "../zones.service";
+import { IPathMetaData } from "../app.interfaces";
+import { IZone } from "../app.interfaces";
 
 @Component({
   selector: 'app-settings-zones',
@@ -22,13 +23,15 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
 
   tableData = new MatTableDataSource([]);
 
-  displayedColumns: string[] = ['path', 'unit', 'lower', 'upper', 'state', "actions"];
+  //displayedColumns: string[] = ['path', 'unit', 'lower', 'upper', 'state', "actions"];
+  displayedColumns: string[] = ['path', 'state', "actions"];
 
 
 
   zonesSub: Subscription;
 
   constructor(
+    private zones: ZonesService,
     private appSettingsService: AppSettingsService,
     public dialog: MatDialog,
     private cdRef: ChangeDetectorRef,
@@ -36,7 +39,60 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.zonesSub = this.appSettingsService.getZonesAsO().subscribe(zones => {
-      this.tableData.data = zones;
+      // this.tableData.data = zones;
+      this.tableData.data =
+        [
+          {
+            path: "self.propulsion.port.revolutions",
+            pathDataState: 0,
+            zones: [
+              {
+                "upper": 3500,
+                "lower": 0,
+                "unit": "rpm",
+                "state": 0
+              },
+              {
+                "upper": 5000,
+                "lower": 3500,
+                "unit": "rpm",
+                "state": 1
+            },
+            {
+                "uuid": "da4c117d-7828-4373-a2c1-d81ddbc6b4a4",
+                "upper": 5500,
+                "lower": 5000,
+                "path": "self.propulsion.port.revolutions",
+                "unit": "rpm",
+                "state": 2
+            },
+            ]
+          },
+          {
+            path: "self.electrical.switches.bank.0.1.state",
+              pathDataState: 2,
+              zones: [
+                {
+                  "upper": 5,
+                  "lower": 0,
+                  "unit": "unitless",
+                  "state": 0
+                }
+              ]
+          },
+          {
+            path: "self.electrical.chargers.victron.yieldYesterday",
+              pathDataState: 4,
+              zones: [
+                {
+                "upper": 50,
+                "lower": 0,
+                "unit": "unitless",
+                "state": 0
+                }
+              ]
+          }
+        ];
     });
   }
 
@@ -47,8 +103,8 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
     this.cdRef.detectChanges();
   }
 
-  public trackByUuid(index: number, item: IZone): string {
-    return `${item.uuid}`;
+  public trackByPath(index: number, item: IZonesRegistry): string {
+    return `${item.path}`;
   }
 
   public applyFilter(event: Event) {
@@ -60,12 +116,12 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public openZoneDialog(uuid?: string): void {
+  public openZoneDialog(path?: string): void {
     let dialogRef;
 
-    if (uuid) {
-      const thisZone: IZone = this.tableData.data.find((zone: IZone) => {
-        return zone.uuid === uuid;
+    if (path) {
+      const thisZone: IZonesRegistry = this.tableData.data.find((zone: IZonesRegistry) => {
+        return zone.path === path;
         });
 
       if (thisZone) {
@@ -82,12 +138,13 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
       if (zone === undefined || !zone) {
         return; //clicked Cancel, click outside the dialog, or navigated await from page using url bar.
       } else {
-        if (zone.uuid) {
-          this.editZone(zone);
-        } else {
-          zone.uuid = this.newUuid();
-          this.addZone(zone);
-        }
+        // TODO: FIX
+        // if (zone.uuid) {
+        //   this.editZone(zone);
+        // } else {
+        //   zone.uuid = this.newUuid();
+        //   this.addZone(zone);
+        // }
       }
     });
   }
@@ -99,25 +156,25 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
   }
 
   public editZone(zone: IZone) {
-    if (zone.uuid) { // is existing zone
-      const zones: IZone[] = this.appSettingsService.getZones();
-      const index = zones.findIndex(zones => zones.uuid === zone.uuid );
+    // if (zone.uuid) { // is existing zone
+    //   const zones: IZone[] = this.appSettingsService.getZones();
+    //   const index = zones.findIndex(zones => zones.uuid === zone.uuid );
 
-      if(index >= 0) {
-        zones.splice(index, 1, zone);
-        this.appSettingsService.saveZones(zones);
-      }
-    }
+    //   if(index >= 0) {
+    //     zones.splice(index, 1, zone);
+    //     this.appSettingsService.saveZones(zones);
+    //   }
+    // }
   }
 
   public deleteZone(uuid: string) {
-    let zones = this.appSettingsService.getZones();
-    //find index
-    let index = zones.findIndex(zone => zone.uuid === uuid);
-    if (index >= 0) {
-      zones.splice(index, 1);
-      this.appSettingsService.saveZones(zones);
-    }
+    // let zones = this.appSettingsService.getZones();
+    // //find index
+    // let index = zones.findIndex(zone => zone.uuid === uuid);
+    // if (index >= 0) {
+    //   zones.splice(index, 1);
+    //   this.appSettingsService.saveZones(zones);
+    // }
   }
 
   private newUuid() {
@@ -168,15 +225,16 @@ export class DialogNewZone {
    }
 
   closeForm() {
-    let zone: IZone = {
-      uuid: null,
-      upper: this.zoneForm.get('upper').value,
-      lower: this.zoneForm.get('lower').value,
-      path: this.zoneForm.get('path.path').value,
-      unit: this.zoneForm.get('path.convertUnitTo').value,
-      state: parseInt(this.zoneForm.get('state').value)
-    };
-    this.dialogRef.close(zone);
+    // TODO: FIX
+    // let zone: IZone = {
+    //   uuid: null,
+    //   upper: this.zoneForm.get('upper').value,
+    //   lower: this.zoneForm.get('lower').value,
+    //   path: this.zoneForm.get('path.path').value,
+    //   unit: this.zoneForm.get('path.convertUnitTo').value,
+    //   state: parseInt(this.zoneForm.get('state').value)
+    // };
+    // this.dialogRef.close(zone);
   }
 }
 
@@ -191,7 +249,7 @@ export class DialogEditZone {
 
   constructor(
     public dialogRef: MatDialogRef<DialogEditZone>,
-    @Inject(MAT_DIALOG_DATA) public zone: IZone,
+    @Inject(MAT_DIALOG_DATA) public zone: IZonesRegistry,
     ) {
 
     }

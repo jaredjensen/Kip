@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ResizedEvent } from 'angular-resize-event';
 
-import { IZone, IZoneState } from '../app-settings.interfaces';
+import { IZone, IZoneState } from '../app.interfaces';
 import { AppSettingsService } from '../app-settings.service';
 import { SignalKService } from '../signalk.service';
 import { UnitsService } from '../units.service';
@@ -131,17 +131,18 @@ export class WidgetGaugeNgRadialComponent implements OnInit, OnDestroy, AfterCon
 
 
         // set colors for zone state
-        switch (newValue.state) {
-          case IZoneState.alert:
-            this.gaugeOptions.colorValueText = getComputedStyle(this.warnDarkElement.nativeElement).color;
-            break;
-          case IZoneState.warn:
-            this.gaugeOptions.colorValueText = getComputedStyle(this.warnDarkElement.nativeElement).color;
-            break;
-          default:
-            this.gaugeOptions.colorValueText = getComputedStyle(this.textElement.nativeElement).color;
+        // TODO: FIX
+        // switch (newValue.state) {
+        //   case IZoneState.alert:
+        //     this.gaugeOptions.colorValueText = getComputedStyle(this.warnDarkElement.nativeElement).color;
+        //     break;
+        //   case IZoneState.warn:
+        //     this.gaugeOptions.colorValueText = getComputedStyle(this.warnDarkElement.nativeElement).color;
+        //     break;
+        //   default:
+        //     this.gaugeOptions.colorValueText = getComputedStyle(this.textElement.nativeElement).color;
 
-        }
+        // }
 
       }
     );
@@ -256,34 +257,35 @@ export class WidgetGaugeNgRadialComponent implements OnInit, OnDestroy, AfterCon
     // highlights
     let myZones: IDataHighlight = [];
     this.zones.forEach(zone => {
+      //TODO: FIX
       // get zones for our path
-      if (zone.path == this.config.paths['gaugePath'].path) {
-        let lower = zone.lower || this.config.minValue;
-        let upper = zone.upper || this.config.maxValue;
-        let color: string;
-        switch (zone.state) {
-          case IZoneState.alert:
-            color = getComputedStyle(this.warnElement.nativeElement).color;
-            break;
-          case IZoneState.warn:
-            color = getComputedStyle(this.warnDarkElement.nativeElement).color;
-            break;
+      // if (zone.path == this.config.paths['gaugePath'].path) {
+      //   let lower = zone.lower || this.config.minValue;
+      //   let upper = zone.upper || this.config.maxValue;
+      //   let color: string;
+      //   switch (zone.state) {
+      //     case IZoneState.alert:
+      //       color = getComputedStyle(this.warnElement.nativeElement).color;
+      //       break;
+      //     case IZoneState.warn:
+      //       color = getComputedStyle(this.warnDarkElement.nativeElement).color;
+      //       break;
 
-          case IZoneState.alarm:
-            //TODO: add color - new spec level
-            break;
+      //     case IZoneState.alarm:
+      //       //TODO: add color - new spec level
+      //       break;
 
-          case IZoneState.emergency:
-            //TODO: fix color - new spec level
-            break;
+      //     case IZoneState.emergency:
+      //       //TODO: fix color - new spec level
+      //       break;
 
-          default:
-            color = getComputedStyle(this.primaryElement.nativeElement).color;
-            break;
-        }
+      //     default:
+      //       color = getComputedStyle(this.primaryElement.nativeElement).color;
+      //       break;
+      //   }
 
-        myZones.push({from: lower, to: upper, color: color});
-      }
+      //   myZones.push({from: lower, to: upper, color: color});
+      // }
     });
     this.gaugeOptions.highlights = myZones;
 

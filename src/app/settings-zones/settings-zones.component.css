@@ -9,7 +9,7 @@
   width: 100%;
 }
 
-.buttons {
+/* .buttons {
   margin-right: 5px;
 }
 
@@ -38,9 +38,9 @@
 .actionCell {
   flex: 1 1 20%;
   justify-content: end;
-}
+} */
 
-@media screen and (max-width: 750px) {
+/* @media screen and (max-width: 750px) {
   .pathHeader {
     flex: 1 1 30%;
   }
@@ -77,4 +77,4 @@
     margin-left: 24px;
   }
 
-}
+} */

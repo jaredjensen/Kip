@@ -19,7 +19,7 @@
   </mat-form-field>
 
   <div class="flex-container">
-    <mat-form-field
+    <!-- <mat-form-field
       class="leftThirdField"
       appearance="outline"
       floatLabel="always"
@@ -30,11 +30,11 @@
         matInput
         placeholder="Enter or select number..."
         name="lower"
-        [(ngModel)]="zone.lower"
+        [(ngModel)]="zone.zones.lower"
       />
-    </mat-form-field>
+    </mat-form-field> -->
 
-    <mat-form-field
+    <!-- <mat-form-field
       class="leftThirdField"
       appearance="outline"
       floatLabel="always"
@@ -47,7 +47,7 @@
         name="upper"
         [(ngModel)]="zone.upper"
       />
-    </mat-form-field>
+    </mat-form-field> -->
 
     <mat-form-field
       class="rightThirdField"
@@ -56,7 +56,7 @@
     >
 
       <mat-label>State</mat-label>
-      <mat-select
+      <!-- <mat-select
         placeholder="Value State"
         name="state"
         [(ngModel)]="zone.state"
@@ -67,18 +67,19 @@
         <mat-option [value]="1">Alert</mat-option>
         <mat-option [value]="2">Warn</mat-option>
         <mat-option [value]="3">Alarm</mat-option>
-        <mat-option [value]="4">Emergency</mat-option>
+        <mat-option [value]="4">Emergency</mat-option> -->
         <!-- <mat-option [value]="5">Nominal</mat-option> -->
-      </mat-select>
+      <!-- </mat-select> -->
     </mat-form-field>
 
   </div>
   </mat-dialog-content>
   <mat-dialog-actions>
+    <!--
     <button mat-raised-button mat-dialog-close>Cancel</button>
     <button mat-raised-button color="accent" type="submit" [disabled]="!zoneEditForm.valid || (!zone.lower && !zone.upper)">Save</button>
-    <mat-error style="padding-left: 10px;" *ngIf="!zone.lower && !zone.upper">
+     <mat-error style="padding-left: 10px;" *ngIf="!zone.lower && !zone.upper">
       At least one value is required (lower / upper)
-    </mat-error>
+    </mat-error> -->
   </mat-dialog-actions>
 </form>

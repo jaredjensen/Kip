@@ -5,7 +5,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { SignalKService } from '../signalk.service';
-import { IPathData } from "../app-interfaces";
+import { IPathData } from "../app.interfaces";
 
 
 @Component({

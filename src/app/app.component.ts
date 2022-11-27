@@ -1,3 +1,4 @@
+import { ZonesService } from './zones.service';
 import { AuththeticationService } from './auththetication.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -51,6 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private deltaService: SignalKDeltaService,
     // below services are needed: first service instanciation after Init Service
     private signalKDeltaService: SignalKDeltaService, // needs SignalKService & NotificationsService & SignalKConnectionService
+    private ZonesService: ZonesService, // needs AppSettingsService
     ) { }
 
 

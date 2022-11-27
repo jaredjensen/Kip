@@ -9,7 +9,43 @@
  *********************************************************************************/
 
 import { ISignalKMetadata, State, Method } from "./signalk-interfaces";
-import { IZoneState } from './app-settings.interfaces';
+
+
+/**
+ * An App data structure that represents a data path's zone definition
+ * (ie. the different state the data is in). Used for gauges and notification menu.
+ *
+ * Ex: to vusually display the different state an engine RPM is at: normal, alarn,
+ * emergency, etc. on a radial gauge subcribed to self.propulsion.engines.port
+ *
+ * Use by: zones service
+ *
+ * @memberof app-interfaces
+ */
+export interface IZone {
+  unit: string;
+  upper?: number;
+  lower?: number;
+  message?: string;
+  state: IZoneState;
+}
+
+/**
+ * An App data enumeration that represents possible data zones states
+ * (ie. data severity state). Used for gauges and notification menu.
+
+ * Use by: zones services (parser)
+ *
+ * @memberof app-interfaces
+ */
+export enum IZoneState {
+  normal = 0, // default state
+  alert = 1,
+  warn = 2,
+  alarm = 3,
+  emergency = 4,
+  nominal = 5 //special state meaning "in the normal operating range". Gauge implementation required see: https://signalk.org/specification/1.7.0/doc/data_model_metadata.html
+}
 
 /**
  * An App data structure that represents the values (ie. sensor data)
@@ -47,7 +83,6 @@ import { IZoneState } from './app-settings.interfaces';
   }
   meta?: ISignalKMetadata;
   type: string;
-  state: IZoneState;
 }
 
 /**
