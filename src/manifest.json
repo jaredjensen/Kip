@@ -3,10 +3,11 @@
     "background_color": "#080808",
     "display": "standalone",
     "scope": "./",
+    "id": "./",
     "start_url": "./",
     "name": "Kip",
-    "short_name": "Kip",
-    "description": "Kip SignalK Dashboard",
+    "short_name": "Kip Dashboard",
+    "description": "A Signal K dashboard client application",
     "orientation": "landscape",
     "icons": [
         {

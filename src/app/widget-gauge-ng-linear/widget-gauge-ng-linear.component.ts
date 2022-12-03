@@ -176,11 +176,12 @@ export class WidgetGaugeNgLinearComponent implements OnInit, OnDestroy, AfterCon
 
   // Subscribe to Zones
   subscribeZones() {
-    this.zonesSub = this.AppSettingsService.getZonesAsO().subscribe(
-      zones => {
-        this.zones = zones;
-        this.updateGaugeConfig();
-      });
+    // TODO: Update
+    // this.zonesSub = this.AppSettingsService.getZonesAsO().subscribe(
+    //   zones => {
+    //     this.zones = zones;
+    //     this.updateGaugeConfig();
+    //   });
   }
 
   unsubscribeZones(){

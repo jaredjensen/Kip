@@ -12,6 +12,22 @@ import { ISignalKMetadata, State, Method } from "./signalk-interfaces";
 
 
 /**
+ * An App data structure that represents a data path's zones definitions
+ * (ie. the different state the data can be in). Used for gauges and notification menu.
+ *
+ * Ex: to vusually display the different state an engine RPM is at: normal, alarn,
+ * emergency, etc. on a radial gauge subcribed to self.propulsion.engines.port
+ *
+ * Use by: zones service and AppSettings service
+ *
+ * @memberof app-interfaces
+ */
+export interface IPathZoneDef {
+  path: string;
+  zonesDef: IZone[];
+}
+
+/**
  * An App data structure that represents a data path's zone definition
  * (ie. the different state the data is in). Used for gauges and notification menu.
  *
@@ -23,7 +39,6 @@ import { ISignalKMetadata, State, Method } from "./signalk-interfaces";
  * @memberof app-interfaces
  */
 export interface IZone {
-  unit: string;
   upper?: number;
   lower?: number;
   message?: string;
@@ -51,7 +66,7 @@ export enum IZoneState {
  * An App data structure that represents the values (ie. sensor data)
  * of a path. Used as a Read/Write interface on internal App paths data source.
 
- * Use by: signalk-full services (parser), signalk-delta services (parser) and
+ * Use by: signalk-delta services (parser) and
  * signalk services (internal app datasource)
  *
  * @memberof app-interfaces

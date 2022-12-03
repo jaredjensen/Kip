@@ -8,7 +8,7 @@ import { IWidget } from './widget-manager.service';
 import { IUnitDefaults } from './units.service';
 
 import { IConfig, IAppConfig, IConnectionConfig, IThemeConfig, IWidgetConfig, ILayoutConfig, IZonesConfig, INotificationConfig, ISignalKUrl } from "./app-settings.interfaces";
-import { IZone } from "./app.interfaces";
+import { IPathZoneDef } from "./app.interfaces";
 import { DefaultAppConfig, DefaultConectionConfig, DefaultWidgetConfig, DefaultLayoutConfig, DefaultThemeConfig, DefaultZonesConfig } from './config.blank.const';
 import { DefaultUnitsConfig } from './config.blank.units.const'
 import { DefaultNotificationConfig } from './config.blank.notification.const';
@@ -41,11 +41,10 @@ export class AppSettingsService {
   splitSets: ISplitSet[] = [];
   rootSplits: string[] = [];
   dataSets: IDataSet[] = [];
-  zones: BehaviorSubject<Array<IZone>> = new BehaviorSubject<Array<IZone>>([]);
+  private zones: IPathZoneDef[] = [];
   root
 
   constructor(
-    private router: Router,
     private storage: StorageService,
     )
   {
@@ -178,7 +177,7 @@ export class AppSettingsService {
     this.unitDefaults.next(this.activeConfig.app.unitDefaults);
     this.kipKNotificationConfig.next(this.activeConfig.app.notificationConfig);
     this.widgets = this.activeConfig.widget.widgets;
-    this.zones.next(this.activeConfig.zones.zones);
+    this.zones = this.activeConfig.zones.zones;
     this.splitSets = this.activeConfig.layout.splitSets;
     this.rootSplits = this.activeConfig.layout.rootSplits;
   }
@@ -340,19 +339,18 @@ export class AppSettingsService {
   }
 
   // Zones
-  public saveZones(zones: Array<IZone>) {
-    this.zones.next(zones);
+  public saveZones(zones: Array<IPathZoneDef>) {
+    this.zones = zones;
     if (this.useSharedConfig) {
       this.storage.patchConfig('Array<IZone>', zones);
     } else {
       this.saveZonesConfigToLocalStorage();
     }
   }
-  public getZonesAsO() {
-    return this.zones.asObservable();
-  }
-  public getZones() {
-    return this.zones.getValue();
+
+  public getZones(): Array<IPathZoneDef> {
+    let zones = this.zones;
+    return zones;
   }
 
   // Notification Service Setting
@@ -473,7 +471,7 @@ export class AppSettingsService {
 
   private buildZonesStorageObject() {
     let storageObject: IZonesConfig = {
-      zones: this.zones.getValue()
+      zones: this.zones
       }
     return storageObject;
   }

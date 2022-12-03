@@ -2,7 +2,7 @@ import { IDataSet } from './data-set.service';
 import { ISplitSet } from './layout-splits.service';
 import { IWidget } from './widget-manager.service';
 import { IUnitDefaults } from './units.service';
-import { IZone } from "./app.interfaces";
+import { IPathZoneDef } from "./app.interfaces";
 
 export interface IConnectionConfig {
   configVersion: number;
@@ -43,7 +43,7 @@ export interface ILayoutConfig {
 }
 
 export interface IZonesConfig {
-  zones: Array<IZone>;
+  zones: IPathZoneDef[];
 }
 
 export interface INotificationConfig {

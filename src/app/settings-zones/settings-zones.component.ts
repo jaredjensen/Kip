@@ -1,94 +1,69 @@
-import { Component, OnInit, Inject, Input, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
-import { FormGroup, FormControl, Validators }    from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
-import { Subscription, Observable } from 'rxjs';
+import { SignalKService } from './../signalk.service';
+import { Component, OnInit, Inject, ViewChild, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { FormGroup, FormControl, Validators, RequiredValidator }    from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { NestedTreeControl } from '@angular/cdk/tree';
+import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
-import { AppSettingsService } from '../app-settings.service';
-import { ZonesService, IZonesRegistry } from "../zones.service";
-import { IPathMetaData } from "../app.interfaces";
-import { IZone } from "../app.interfaces";
+import { ZonesService, IPathZone } from "../zones.service";
+import { IZone, IZoneState, IPathZoneDef } from "../app.interfaces";
 
-const treeData: IZonesRegistry[] =
-    [
-      {
-        path: "self.propulsion.port.revolutions",
-        pathDataState: 0,
-        zones: [
-          {
-            "upper": 3500,
-            "lower": 0,
-            "unit": "rpm",
-            "state": 0
-          },
-          {
-            "upper": 5000,
-            "lower": 3500,
-            "unit": "rpm",
-            "state": 1
-          },
-          {
-            "upper": 5500,
-            "lower": 5000,
-            "unit": "rpm",
-            "state": 2
-          },
-        ]
-      },
-      {
-        path: "self.electrical.switches.bank.0.1.state",
-        pathDataState: 2,
-        zones: [
-          {
-            "upper": 5,
-            "lower": 0,
-            "unit": "unitless",
-            "state": 0
-          }
-        ]
-      },
-      {
-        path: "self.electrical.chargers.victron.yieldYesterday",
-        pathDataState: 4,
-        zones: [
-          {
-          "upper": 50,
-          "lower": 0,
-          "unit": "unitless",
-          "state": 0
-          }
-        ]
-      }
-    ];
+interface ITreeData {
+  path?: string;
+  dataState?: IZoneState;
+  upper?: number;
+  lower?: number;
+  message?: string;
+  state?: IZoneState;
+  children?: ITreeData[];
+}
 
 @Component({
   selector: 'app-settings-zones',
   templateUrl: './settings-zones.component.html',
-  styleUrls: ['./settings-zones.component.css']
+  styleUrls: ['./settings-zones.component.scss']
 })
-export class SettingsZonesComponent implements OnInit, AfterViewInit {
+export class SettingsZonesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  //displayedColumns: string[] = ['path', 'unit', 'lower', 'upper', 'state', "actions"];
-  displayedColumns: string[] = ['path', 'state', "actions"];
-
-
-
-  zonesSub: Subscription;
+  public dataSource = new MatTreeNestedDataSource<ITreeData>();
+  public treeControl = new NestedTreeControl<ITreeData>(node => node.children);
+  private zonesSub: Subscription;
 
   constructor(
     private zones: ZonesService,
-    private appSettingsService: AppSettingsService,
     public dialog: MatDialog,
     private cdRef: ChangeDetectorRef,
     ) { }
 
   ngOnInit() {
-    this.zonesSub = this.appSettingsService.getZonesAsO().subscribe(zones => {
-      // this.tableData.data = zones;
+    this.zonesSub = this.zones.getZonesObservable().subscribe(zoneItems => {
+      // transform service data structure to tree control data srtucture
+      let zoneData: ITreeData[] = [];
+      zoneItems.forEach(item => {
+        let dataItem: ITreeData = {children: []};
+        dataItem.path = item.path;
+        dataItem.dataState = item.dataState;
+
+        if (item.zonesDef) {
+          item.zonesDef.forEach( zoneDef => {
+            let zone: ITreeData = {};
+            zone.state = zoneDef.state;
+            zone.lower = zoneDef.lower;
+            zone.upper = zoneDef.upper;
+            zone.message = zoneDef.message;
+
+            dataItem.children.push(zone);
+          });
+        }
+        zoneData.push(dataItem);
+      })
+
+    this.dataSource.data = zoneData;
     });
   }
 
@@ -99,7 +74,11 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
     // this.cdRef.detectChanges();
   }
 
-  public trackByPath(index: number, item: IZonesRegistry): string {
+  public hasChild(index: number, node: ITreeData) {
+    return node?.children?.length > 0;
+  }
+
+  public trackByPath(index: number, item: IPathZoneDef): string {
     return `${item.path}`;
   }
 
@@ -112,43 +91,29 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
     // }
   }
 
-  public openZoneDialog(path?: string): void {
-    // let dialogRef;
+  public openZoneDialog(node?: any): void {
+    console.log();
+    let dialogRef;
 
-    // if (path) {
-    //   const thisZone: IZonesRegistry = this.treeData.data.find((zone: IZonesRegistry) => {
-    //     return zone.path === path;
-    //     });
+    if (node) {
+      dialogRef = this.dialog.open(DialogEditZone, {
+        data: node
+      });
+    } else {
+      dialogRef = this.dialog.open(DialogNewZone, {});
+    }
 
-    //   if (thisZone) {
-    //     dialogRef = this.dialog.open(DialogEditZone, {
-    //       data: thisZone
-    //     });
-    //   }
-    // } else {
-    //     dialogRef = this.dialog.open(DialogNewZone, {
-    //     });
-    // }
-
-    // dialogRef.afterClosed().subscribe((zone: IZone) => {
-    //   if (zone === undefined || !zone) {
-    //     return; //clicked Cancel, click outside the dialog, or navigated await from page using url bar.
-    //   } else {
-    //     // TODO: FIX
-    //     // if (zone.uuid) {
-    //     //   this.editZone(zone);
-    //     // } else {
-    //     //   zone.uuid = this.newUuid();
-    //     //   this.addZone(zone);
-    //     // }
-    //   }
-    // });
+    dialogRef.afterClosed().subscribe((zone: IPathZoneDef) => {
+      if (zone === undefined || !zone) {
+        return; //clicked Cancel, clicked outside the dialog, or navigated await from page using url bar.
+      } else {
+        this.addZone(zone);
+      }
+    });
   }
 
-  public addZone(zone: IZone) {
-    // let zones: IZone[] = this.appSettingsService.getZones();
-    // zones.push(zone);
-    // this.appSettingsService.saveZones(zones);
+  public addZone(zone: IPathZone) {
+    this.zones.addPathZones(zone);
   }
 
   public editZone(zone: IZone) {
@@ -163,21 +128,14 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
     // }
   }
 
-  public deleteZone(uuid: string) {
-    // let zones = this.appSettingsService.getZones();
-    // //find index
-    // let index = zones.findIndex(zone => zone.uuid === uuid);
-    // if (index >= 0) {
-    //   zones.splice(index, 1);
-    //   this.appSettingsService.saveZones(zones);
-    // }
+  public deleteZone(node: any) {
+    if (!this.zones.deletePathZones(node.path)) {
+      //TODO: Send notification
+    }
   }
 
-  private newUuid() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-    });
+  ngOnDestroy(): void {
+    this.zonesSub.unsubscribe();
   }
 }
 
@@ -188,31 +146,49 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit {
   templateUrl: 'settings-new-zone.modal.html',
   styleUrls: ['./settings-new-zone.modal.css']
 })
-export class DialogNewZone {
+export class DialogNewZone implements OnInit {
 
   zoneForm: FormGroup = new FormGroup({
-    upper: new FormControl(null),
-    lower: new FormControl(null),
-    state: new FormControl('0', Validators.required),
+    zonesPath: new FormControl(null),
     filterSelfPaths: new FormControl(true),
-    path: new FormGroup({
-      path: new FormControl(null),
-      isPathConfigurable: new FormControl(true),
-      convertUnitTo: new FormControl("unitless"),
-      pathType: new FormControl("number"),
-      source: new FormControl(null)
-    })
-  }, this.rangeValidationFunction);
+    zoneNormal: new FormGroup({
+      state: new FormControl({value: 'Normal', disabled: true}),
+      lower: new FormControl(null),
+      upper: new FormControl(null)
+    }, this.rangeValidationFunction),
+    zoneAlert: new FormGroup({
+      state: new FormControl({value: 'Alert', disabled: true}),
+      lower: new FormControl(null),
+      upper: new FormControl(null)
+    }, this.rangeValidationFunction),
+    zoneWarn: new FormGroup({
+      state: new FormControl({value: 'Warn', disabled: true}),
+      lower: new FormControl(null),
+      upper: new FormControl(null)
+    }, this.rangeValidationFunction),
+    zoneAlarm: new FormGroup({
+      state: new FormControl({value: 'Alarm', disabled: true}),
+      lower: new FormControl(null),
+      upper: new FormControl(null)
+    }, this.rangeValidationFunction),
+    zoneEmergency: new FormGroup({
+      state: new FormControl({value: 'Emergency', disabled: true}),
+      lower: new FormControl(null),
+      upper: new FormControl(null)
+    }, this.rangeValidationFunction)
+  });
 
-  @Input() filterSelfPaths: boolean;
-  availablePaths: IPathMetaData[];
-  filteredPaths: Observable<IPathMetaData[]> = new Observable;
-
-  selectedUnit = null;
+  public selectedUnit = null;
+  public availablePaths: string[] = [];
 
   constructor(
+    private signalk: SignalKService,
     public dialogRef: MatDialogRef<DialogNewZone>) {
     }
+
+  ngOnInit(): void {
+    this.availablePaths = this.signalk.getPathsByType('number').sort();
+  }
 
   rangeValidationFunction(formGroup: FormGroup): any {
       let upper = formGroup.get('upper').value;
@@ -221,16 +197,44 @@ export class DialogNewZone {
    }
 
   closeForm() {
-    // TODO: FIX
-    // let zone: IZone = {
-    //   uuid: null,
-    //   upper: this.zoneForm.get('upper').value,
-    //   lower: this.zoneForm.get('lower').value,
-    //   path: this.zoneForm.get('path.path').value,
-    //   unit: this.zoneForm.get('path.convertUnitTo').value,
-    //   state: parseInt(this.zoneForm.get('state').value)
-    // };
-    // this.dialogRef.close(zone);
+    let zone: IPathZoneDef = {
+      path: this.zoneForm.value.zonesPath,
+      zonesDef: [
+        {
+          state: 0,
+          upper: this.zoneForm.value.zoneNormal.lower,
+          lower: this.zoneForm.value.zoneNormal.upper,
+          message: null
+        },
+        {
+          state: 1,
+          upper: this.zoneForm.value.zoneAlert.lower,
+          lower: this.zoneForm.value.zoneAlert.upper,
+          message: null
+        },
+        {
+          state: 2,
+          upper: this.zoneForm.value.zoneWarn.lower,
+          lower: this.zoneForm.value.zoneWarn.upper,
+          message: null
+        },
+        {
+          state: 3,
+          upper: this.zoneForm.value.zoneAlarm.lower,
+          lower: this.zoneForm.value.zoneAlarm.upper,
+          message: null
+        },
+        {
+          state: 4,
+          upper: this.zoneForm.value.zoneEmergency.lower,
+          lower: this.zoneForm.value.zoneEmergency.upper,
+          message: null
+        },
+
+      ]
+    };
+
+    this.dialogRef.close(zone);
   }
 }
 
@@ -245,7 +249,7 @@ export class DialogEditZone {
 
   constructor(
     public dialogRef: MatDialogRef<DialogEditZone>,
-    @Inject(MAT_DIALOG_DATA) public zone: IZonesRegistry,
+    @Inject(MAT_DIALOG_DATA) public zone: IPathZone,
     ) {
 
     }

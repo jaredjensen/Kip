@@ -1,64 +1,143 @@
-<h2 mat-dialog-title>Add Zone</h2>
+<h2 mat-dialog-title>Add Zones</h2>
 <form (ngSubmit)="closeForm()" [formGroup]="zoneForm">
   <mat-dialog-content>
     <div class="flex-container">
-      <mat-checkbox name="filterSelfPaths" formControlName="filterSelfPaths"
-        >Restrict to own vessel</mat-checkbox
-      >
-      <modal-path-selector
-        class="full-width"
-        [formGroup]="zoneForm.controls.path"
-        [filterSelfPaths]="zoneForm.value.filterSelfPaths"
-      >
-      </modal-path-selector>
-
-      <mat-form-field
-        appearance="outline"
-        floatLabel="always"
-      >
-        <mat-label>Lower value</mat-label>
-        <input
-          type="number"
-          matInput
-          placeholder="Enter or select number..."
-          name="lower"
-          formControlName="lower"
-        />
-      </mat-form-field>
-
-      <mat-form-field
-        appearance="outline"
-        floatLabel="always"
-      >
-        <mat-label>Upper value</mat-label>
-        <input
-          type="number"
-          matInput
-          placeholder="Enter or select number..."
-          name="upper"
-          formControlName="upper"
-        />
-      </mat-form-field>
-
-      <mat-form-field
-        appearance="outline"
-        floatLabel="always"
-      >
-        <mat-label>State</mat-label>
+      <mat-checkbox name="filterSelfPaths" formControlName="filterSelfPaths">
+        Restrict Path list to own vessel
+      </mat-checkbox>
+      <mat-form-field class="full-width" appearance="outline" floatLabel="always">
+        <mat-label>Signal K Path</mat-label>
         <mat-select
-          placeholder="Value State"
-          formControlName="state"
-          name="state"
+          placeholder="Select data path..."
+          name="selectedPath"
+          formControlName="zonesPath"
           required
         >
-          <mat-option value="0">Normal</mat-option>
-          <mat-option value="1">Alert</mat-option>
-          <mat-option value="2">Warn</mat-option>
-          <mat-option value="3">Alarm</mat-option>
-          <mat-option value="4">Emergency</mat-option>
-          <!-- <mat-option [value]="5">Nominal</mat-option> -->
+          <mat-option
+            *ngFor="let path of (availablePaths | filterSelf: zoneForm.value.filterSelfPaths)"
+            [value]="path"
+          >
+            {{path}}
+          </mat-option>
         </mat-select>
       </mat-form-field>
+
+      <div class="zone-group" [formGroup]="zoneForm.controls.zoneNormal">
+        <label class="mat-checkbox">Normal Zone</label>
+        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>From</mat-label>
+          <input
+            type="number"
+            matInput
+            name="lower"
+            formControlName="lower"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>To</mat-label>
+          <input
+            type="number"
+            matInput
+            name="upper"
+            formControlName="upper"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+      </div>
+
+      <div class="zone-group" [formGroup]="zoneForm.controls.zoneAlert">
+        <label class="mat-checkbox">Alert Zone</label>
+        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>From</mat-label>
+          <input
+            type="number"
+            matInput
+            name="lower"
+            formControlName="lower"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>To</mat-label>
+          <input
+            type="number"
+            matInput
+            name="upper"
+            formControlName="upper"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+      </div>
+      <div class="zone-group" [formGroup]="zoneForm.controls.zoneWarn">
+        <label class="mat-checkbox">Warn Zone</label>
+        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>From</mat-label>
+          <input
+            type="number"
+            matInput
+            name="lower"
+            formControlName="lower"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>To</mat-label>
+          <input
+            type="number"
+            matInput
+            name="upper"
+            formControlName="upper"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+      </div>
+      <div class="zone-group" [formGroup]="zoneForm.controls.zoneAlarm">
+        <label class="mat-checkbox">Alarm Zone</label>
+        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>From</mat-label>
+          <input
+            type="number"
+            matInput
+            name="lower"
+            formControlName="lower"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>To</mat-label>
+          <input
+            type="number"
+            matInput
+            name="upper"
+            formControlName="upper"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+      </div>
+      <div class="zone-group" [formGroup]="zoneForm.controls.zoneEmergency">
+        <label class="mat-checkbox">Emergency Zone</label>
+        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>From</mat-label>
+          <input
+            type="number"
+            matInput
+            name="lower"
+            formControlName="lower"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+
+        <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
+          <mat-label>To</mat-label>
+          <input
+            type="number"
+            matInput
+            name="upper"
+            formControlName="upper"
+            placeholder="Enter value..."/>
+        </mat-form-field>
+      </div>
     </div>
   </mat-dialog-content>
   <mat-dialog-actions>
@@ -67,7 +146,7 @@
       mat-raised-button
       color="accent"
       type="submit"
-      [disabled]="!zoneForm.valid"
+
     >
       Add
     </button>

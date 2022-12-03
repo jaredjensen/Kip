@@ -12,7 +12,7 @@
         <mat-label>Filter</mat-label>
         <input matInput (keyup)="applyFilter($event)" placeholder="Ex: navigation" value="" #input>
       </mat-form-field>
-      <div class="mat-elevation-z8 full-width table-container">
+      <div class="mat-elevation-z1 full-width table-container">
 
         <mat-table class="full-display" [dataSource]="tableData" [trackBy]="trackByUuid" matSort matSortActive="path" matSortDirection="asc">
 
@@ -51,7 +51,7 @@
           </mat-row>
         </mat-table>
       </div>
-      <div class="paginator">
+      <div class="paginator mat-elevation-z1">
         <mat-paginator pageSize="5" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
       </div>
     </mat-card-content>
