@@ -1,11 +1,30 @@
-<h2 mat-dialog-title>Add Zones</h2>
+<h2 mat-dialog-title> {{titleDialog}} </h2>
 <form (ngSubmit)="closeForm()" [formGroup]="zoneForm">
   <mat-dialog-content>
     <div class="flex-container">
-      <mat-checkbox name="filterSelfPaths" formControlName="filterSelfPaths">
+
+
+      <mat-form-field *ngIf="data.item"
+      class="full-width"
+      appearance="fill"
+      floatLabel="always"
+      >
+        <mat-label>Signal K Path</mat-label>
+        <input
+          type="text"
+          matInput
+          placeholder="Select data path..."
+          name="selectedPath"
+          formControlName="zonesPath"
+          required
+        />
+      </mat-form-field>
+
+
+      <mat-checkbox *ngIf="!data.item" name="filterSelfPaths" formControlName="filterSelfPaths">
         Restrict Path list to own vessel
       </mat-checkbox>
-      <mat-form-field class="full-width" appearance="outline" floatLabel="always">
+      <mat-form-field *ngIf="!data.item" class="full-width" appearance="outline" floatLabel="always">
         <mat-label>Signal K Path</mat-label>
         <mat-select
           placeholder="Select data path..."
@@ -24,7 +43,7 @@
 
       <div class="zone-group" [formGroup]="zoneForm.controls.zoneNormal">
         <label class="mat-checkbox">Normal Zone</label>
-        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-divider class="zone-title-divider"></mat-divider>
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>From</mat-label>
           <input
@@ -34,7 +53,6 @@
             formControlName="lower"
             placeholder="Enter value..."/>
         </mat-form-field>
-
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>To</mat-label>
           <input
@@ -44,11 +62,14 @@
             formControlName="upper"
             placeholder="Enter value..."/>
         </mat-form-field>
+        <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.controls.zoneNormal.hasError('needUpperLower')">
+          'From' must be smaller then 'To'
+        </mat-error>
       </div>
 
       <div class="zone-group" [formGroup]="zoneForm.controls.zoneAlert">
         <label class="mat-checkbox">Alert Zone</label>
-        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-divider class="zone-title-divider"></mat-divider>
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>From</mat-label>
           <input
@@ -58,7 +79,6 @@
             formControlName="lower"
             placeholder="Enter value..."/>
         </mat-form-field>
-
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>To</mat-label>
           <input
@@ -68,10 +88,14 @@
             formControlName="upper"
             placeholder="Enter value..."/>
         </mat-form-field>
+        <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.controls.zoneAlert.hasError('needUpperLower')">
+          'From' must be smaller then 'To'
+        </mat-error>
       </div>
+
       <div class="zone-group" [formGroup]="zoneForm.controls.zoneWarn">
         <label class="mat-checkbox">Warn Zone</label>
-        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-divider class="zone-title-divider"></mat-divider>
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>From</mat-label>
           <input
@@ -81,7 +105,6 @@
             formControlName="lower"
             placeholder="Enter value..."/>
         </mat-form-field>
-
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>To</mat-label>
           <input
@@ -91,10 +114,14 @@
             formControlName="upper"
             placeholder="Enter value..."/>
         </mat-form-field>
+        <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.controls.zoneWarn.hasError('needUpperLower')">
+          'From' must be smaller then 'To'
+        </mat-error>
       </div>
+
       <div class="zone-group" [formGroup]="zoneForm.controls.zoneAlarm">
         <label class="mat-checkbox">Alarm Zone</label>
-        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-divider class="zone-title-divider"></mat-divider>
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>From</mat-label>
           <input
@@ -104,7 +131,6 @@
             formControlName="lower"
             placeholder="Enter value..."/>
         </mat-form-field>
-
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>To</mat-label>
           <input
@@ -114,10 +140,14 @@
             formControlName="upper"
             placeholder="Enter value..."/>
         </mat-form-field>
+        <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.controls.zoneAlarm.hasError('needUpperLower')">
+          'From' must be smaller then 'To'
+        </mat-error>
       </div>
+
       <div class="zone-group" [formGroup]="zoneForm.controls.zoneEmergency">
         <label class="mat-checkbox">Emergency Zone</label>
-        <mat-divider class="zone-title-divider">test</mat-divider>
+        <mat-divider class="zone-title-divider"></mat-divider>
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>From</mat-label>
           <input
@@ -127,7 +157,6 @@
             formControlName="lower"
             placeholder="Enter value..."/>
         </mat-form-field>
-
         <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
           <mat-label>To</mat-label>
           <input
@@ -137,6 +166,9 @@
             formControlName="upper"
             placeholder="Enter value..."/>
         </mat-form-field>
+        <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.controls.zoneEmergency.hasError('needUpperLower')">
+          'From' must be smaller then 'To'
+        </mat-error>
       </div>
     </div>
   </mat-dialog-content>
@@ -146,12 +178,12 @@
       mat-raised-button
       color="accent"
       type="submit"
-
+      [disabled]="zoneForm.invalid"
     >
-      Add
+      Ok
     </button>
-    <mat-error style="padding-left: 10px;" *ngIf="zoneForm.hasError('needUpperLower')">
-      At least one value is required (lower / upper)
+    <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.hasError('zonesInvalid')">
+      Zone are not continuous...
     </mat-error>
   </mat-dialog-actions>
 </form>

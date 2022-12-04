@@ -41,7 +41,7 @@ export class AppSettingsService {
   splitSets: ISplitSet[] = [];
   rootSplits: string[] = [];
   dataSets: IDataSet[] = [];
-  private zones: IPathZoneDef[] = [];
+  private zonesConfig: IPathZoneDef[] = [];
   root
 
   constructor(
@@ -177,7 +177,7 @@ export class AppSettingsService {
     this.unitDefaults.next(this.activeConfig.app.unitDefaults);
     this.kipKNotificationConfig.next(this.activeConfig.app.notificationConfig);
     this.widgets = this.activeConfig.widget.widgets;
-    this.zones = this.activeConfig.zones.zones;
+    this.zonesConfig = this.activeConfig.zones.zones;
     this.splitSets = this.activeConfig.layout.splitSets;
     this.rootSplits = this.activeConfig.layout.rootSplits;
   }
@@ -340,7 +340,7 @@ export class AppSettingsService {
 
   // Zones
   public saveZones(zones: Array<IPathZoneDef>) {
-    this.zones = zones;
+    this.zonesConfig = zones;
     if (this.useSharedConfig) {
       this.storage.patchConfig('Array<IZone>', zones);
     } else {
@@ -349,7 +349,7 @@ export class AppSettingsService {
   }
 
   public getZones(): Array<IPathZoneDef> {
-    let zones = this.zones;
+    let zones = this.zonesConfig;
     return zones;
   }
 
@@ -471,7 +471,7 @@ export class AppSettingsService {
 
   private buildZonesStorageObject() {
     let storageObject: IZonesConfig = {
-      zones: this.zones
+      zones: this.zonesConfig
       }
     return storageObject;
   }

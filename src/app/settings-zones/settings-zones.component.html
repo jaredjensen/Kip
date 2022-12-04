@@ -17,7 +17,8 @@
       <mat-tree
         class="mat-elevation-z1"
         [dataSource]="dataSource"
-        [treeControl]="treeControl">
+        [treeControl]="treeControl"
+        >
 
         <mat-tree-node *matTreeNodeDef="let node" MatTreeNodeToggle>
           <div class="zone-row">
@@ -66,7 +67,7 @@
             <div class="zone-row zone-footer-row">
               <div class="zone-cell actions">
                 <button mat-raised-button class="buttons" color="accent" (click)="openZoneDialog(node)">Edit</button>
-                <button mat-raised-button class="buttons" color="accent" (click)="deleteZone(node)">Delete</button>
+                <button mat-raised-button class="buttons" color="accent" (click)="deleteZones(node)">Delete</button>
               </div>
             </div>
           </div>

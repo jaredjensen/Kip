@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { Observable , BehaviorSubject, Subscription } from 'rxjs';
-import { IPathData, IPathValueData, IPathMetaData, IDefaultSource, IMeta } from "./app.interfaces";
+import { IPathData, IPathValueData, IPathMetaData, IPathValue, IDefaultSource, IMeta } from "./app.interfaces";
 import { AppSettingsService } from './app-settings.service';
 import { SignalKDeltaService } from './signalk-delta.service';
 import { UnitsService, IUnitDefaults, IUnitGroup } from './units.service';
-import { NotificationsService } from './notifications.service';
 import * as Qty from 'js-quantities';
+
 
 interface pathRegistrationValue {
   value: any;
@@ -22,7 +22,6 @@ export interface updateStatistics {
   currentSecond: number; // number up updates in the last second
   secondsUpdates: number[]; // number of updates receieved for each of the last 60 seconds
   minutesUpdates: number[]; // number of updates receieved for each of the last 60 minutes
-
 }
 
 @Injectable({
@@ -55,10 +54,9 @@ export class SignalKService {
   conversionList: IUnitGroup[];
 
   constructor(
-    private appSettingsService: AppSettingsService,
+    private settings: AppSettingsService,
     private deltaService: SignalKDeltaService,
-    private notificationsService: NotificationsService,
-    private unitService: UnitsService,
+    private units: UnitsService,
   )
   {
     //every second update the stats for seconds array
@@ -85,13 +83,13 @@ export class SignalKService {
 
     }, 60000);
 
-    this.defaultUnitsSub = this.appSettingsService.getDefaultUnitsAsO().subscribe(
+    this.defaultUnitsSub = this.settings.getDefaultUnitsAsO().subscribe(
       newDefaults => {
         this.defaultUnits = newDefaults;
       }
     );
 
-    this.conversionList = this.unitService.getConversions();
+    this.conversionList = this.units.getConversions();
 
     // Observer of Delta service data path updates
     this.deltaService.subscribeDataPathsUpdates().subscribe((dataPath: IPathValueData) => {
@@ -171,20 +169,23 @@ export class SignalKService {
   }
 
   private updatePathData(dataPath: IPathValueData): void {
-    // update connection msg stats
+    // Update connection msg stats
     this.updateStatistics.currentSecond++;
 
-    // convert the selfURN to "self"
+    // Convert our path full URN to "self" short version (better for display purposes) - could be removed for performance
     let pathSelf: string = dataPath.path.replace(this.selfurn, 'self');
 
-    // position data is sent as degrees. KIP expects everything to be in SI, so rad.
+    // Convert position data to match Kip's default position format - could be removed for performance
     if (pathSelf.includes('position.latitude') || pathSelf.includes('position.longitude')) {
       dataPath.value = this.degToRad(dataPath.value);
     }
 
+    // PROCESS DATA
     // See if path key exists
     let pathIndex = this.paths.findIndex(pathObject => pathObject.path == pathSelf);
-    if (pathIndex >= 0) { // exists
+
+    // EXIST
+    if (pathIndex >= 0) {
 
       // Update data
       // null source path means, path was first created by metadata. Set source values
@@ -198,6 +199,7 @@ export class SignalKService {
         value: dataPath.value,
       };
 
+    // NOT EXIST
     } else { // doesn't exist. update...
       this.paths.push({
         path: pathSelf,
@@ -225,7 +227,7 @@ export class SignalKService {
           source = pathRegister.source;
         } else {
           //we're looking for a source we don't know of... do nothing I guess?
-          console.warn(`Failed updating zone state. Source unknown or not defined for path: ${pathRegister.source}`);
+          console.warn(`[SignalK Service] Failure updating source data. Source unknown or not defined for path: ${pathRegister.source}`);
         }
         if (source !== null) {
           pathRegister.observable.next({
@@ -237,6 +239,10 @@ export class SignalKService {
 
     // push it to paths observer
     this.pathsObservale.next(this.paths);
+
+    // update path zones state Observable
+    pathSelf
+    dataPath.value
 
   }
 
@@ -377,7 +383,7 @@ export class SignalKService {
       return { default: defaultUnit, conversions: groupList };
     }
     // default if we have a unit for the Path but it's not know by Kip
-    console.log("Unit type: " + pathUnitType + ", found for path: " + path + "\nbut Kip does not support it.");
+    console.log("[SignalK Service] Unit type: " + pathUnitType + ", found for path: " + path + "\nbut Kip does not support it.");
     return { default: 'unitless', conversions: this.conversionList };
   }
 }

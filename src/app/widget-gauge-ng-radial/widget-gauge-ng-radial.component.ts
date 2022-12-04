@@ -184,10 +184,11 @@ export class WidgetGaugeNgRadialComponent implements OnInit, OnDestroy, AfterCon
   }
 
   unsubscribeZones(){
-    if (this.zonesSub !== null) {
-      this.zonesSub.unsubscribe();
-      this.zonesSub = null;
-    }
+    // TODO: Clean up
+    // if (this.zonesSub !== null) {
+    //   this.zonesSub.unsubscribe();
+    //   this.zonesSub = null;
+    // }
   }
 
   openWidgetSettings() {

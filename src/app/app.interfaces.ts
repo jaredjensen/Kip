@@ -12,6 +12,19 @@ import { ISignalKMetadata, State, Method } from "./signalk-interfaces";
 
 
 /**
+ * An App data structure that represents a simple data path's most recent
+ * value regardless of the source that updated it.
+ *
+ * Use by: Zones service and SignalK service
+ *
+ * @memberof app-interfaces
+ */
+export interface IPathValue {
+  path: string;
+  value: any;
+}
+
+/**
  * An App data structure that represents a data path's zones definitions
  * (ie. the different state the data can be in). Used for gauges and notification menu.
  *

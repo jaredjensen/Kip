@@ -68,10 +68,10 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit() {
-    // this.treeData.paginator = this.paginator;
-    // this.treeData.sort = this.sort;
-    // this.treeData.filter = "";
-    // this.cdRef.detectChanges();
+    // this.dataSource.paginator = this.paginator;
+    // this.dataSource.sort = this.sort;
+    // this.dataSource.filter = "";
+    this.cdRef.detectChanges();
   }
 
   public hasChild(index: number, node: ITreeData) {
@@ -83,54 +83,48 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   public applyFilter(event: Event) {
-    // const filterValue = (event.target as HTMLInputElement).value;
-    // this.treeData.filter = filterValue.trim().toLowerCase();
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.data.filter(item => item.path = filterValue.trim().toLowerCase() ) ;
 
-    // if (this.treeData.paginator) {
-    //   this.treeData.paginator.firstPage();
+    // if (this.dataSource.paginator) {
+    //   this.dataSource.paginator.firstPage();
     // }
   }
 
-  public openZoneDialog(node?: any): void {
-    console.log();
+  public openZoneDialog(node?: ITreeData): void {
     let dialogRef;
 
     if (node) {
-      dialogRef = this.dialog.open(DialogEditZone, {
-        data: node
+      dialogRef = this.dialog.open(DialogZones, {
+        data: {
+          item: node,
+          dataSource: this.dataSource
+        }
       });
     } else {
-      dialogRef = this.dialog.open(DialogNewZone, {});
+      dialogRef = this.dialog.open(DialogZones, {
+        data: {
+          dataSource: this.dataSource
+        }
+      });
     }
 
     dialogRef.afterClosed().subscribe((zone: IPathZoneDef) => {
       if (zone === undefined || !zone) {
         return; //clicked Cancel, clicked outside the dialog, or navigated await from page using url bar.
       } else {
-        this.addZone(zone);
+        this.addZones(zone);
       }
     });
   }
 
-  public addZone(zone: IPathZone) {
-    this.zones.addPathZones(zone);
+  public addZones(zone: IPathZone) {
+    this.zones.addZones(zone);
   }
 
-  public editZone(zone: IZone) {
-    // if (zone.uuid) { // is existing zone
-    //   const zones: IZone[] = this.appSettingsService.getZones();
-    //   const index = zones.findIndex(zones => zones.uuid === zone.uuid );
-
-    //   if(index >= 0) {
-    //     zones.splice(index, 1, zone);
-    //     this.appSettingsService.saveZones(zones);
-    //   }
-    // }
-  }
-
-  public deleteZone(node: any) {
-    if (!this.zones.deletePathZones(node.path)) {
-      //TODO: Send notification
+  public deleteZones(node: any) {
+    if (!this.zones.deleteZones(node.path)) {
+      //TODO: Send error notification as UI confirmation
     }
   }
 
@@ -142,92 +136,141 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit, OnDestroy 
 
 // Add zone compoment
 @Component({
-  selector: 'dialog-new-zone',
-  templateUrl: 'settings-new-zone.modal.html',
-  styleUrls: ['./settings-new-zone.modal.css']
+  selector: 'dialog-zones',
+  templateUrl: './settings-zones.modal.html',
+  styleUrls: ['./settings-zones.modal.css']
 })
-export class DialogNewZone implements OnInit {
+export class DialogZones implements OnInit {
 
-  zoneForm: FormGroup = new FormGroup({
+  public zoneForm: FormGroup = new FormGroup({
     zonesPath: new FormControl(null),
     filterSelfPaths: new FormControl(true),
     zoneNormal: new FormGroup({
-      state: new FormControl({value: 'Normal', disabled: true}),
       lower: new FormControl(null),
       upper: new FormControl(null)
     }, this.rangeValidationFunction),
     zoneAlert: new FormGroup({
-      state: new FormControl({value: 'Alert', disabled: true}),
       lower: new FormControl(null),
       upper: new FormControl(null)
     }, this.rangeValidationFunction),
     zoneWarn: new FormGroup({
-      state: new FormControl({value: 'Warn', disabled: true}),
       lower: new FormControl(null),
       upper: new FormControl(null)
     }, this.rangeValidationFunction),
     zoneAlarm: new FormGroup({
-      state: new FormControl({value: 'Alarm', disabled: true}),
       lower: new FormControl(null),
       upper: new FormControl(null)
     }, this.rangeValidationFunction),
     zoneEmergency: new FormGroup({
-      state: new FormControl({value: 'Emergency', disabled: true}),
       lower: new FormControl(null),
       upper: new FormControl(null)
     }, this.rangeValidationFunction)
-  });
+  }, this.zonesValidationFunction);
 
-  public selectedUnit = null;
   public availablePaths: string[] = [];
+  public titleDialog: string = null;
 
   constructor(
     private signalk: SignalKService,
-    public dialogRef: MatDialogRef<DialogNewZone>) {
+    public dialogRef: MatDialogRef<DialogZones>,
+    @Inject(MAT_DIALOG_DATA) public data: {item: ITreeData, dataSource: MatTreeNestedDataSource<ITreeData>},) {
     }
 
   ngOnInit(): void {
-    this.availablePaths = this.signalk.getPathsByType('number').sort();
+    if (!this.data.item) {
+      this.titleDialog = "Add Zones";
+      // Remove paths that are already defined so we don't define twice
+      let allPaths = this.signalk.getPathsByType('number').sort();
+      this.data.dataSource.data.forEach( dataSourceItem => {
+        let index = allPaths.findIndex(item => item == dataSourceItem.path);
+        if (index >= 0) {
+          allPaths.splice(index, 1);
+        }
+      });
+
+      this.availablePaths = allPaths;
+
+    } else {
+      this.titleDialog = "Edit Zones";
+      this.zoneForm.get('zonesPath').setValue(this.data.item.path);
+      this.zoneForm.get('zonesPath').disable();
+      this.zoneForm.get('zoneNormal.lower').setValue(this.data.item.children[0].lower);
+      this.zoneForm.get('zoneNormal.upper').setValue(this.data.item.children[0].upper);
+      this.zoneForm.get('zoneAlert.lower').setValue(this.data.item.children[1].lower);
+      this.zoneForm.get('zoneAlert.upper').setValue(this.data.item.children[1].upper);
+      this.zoneForm.get('zoneWarn.lower').setValue(this.data.item.children[2].lower);
+      this.zoneForm.get('zoneWarn.upper').setValue(this.data.item.children[2].upper);
+      this.zoneForm.get('zoneAlarm.lower').setValue(this.data.item.children[3].lower);
+      this.zoneForm.get('zoneAlarm.upper').setValue(this.data.item.children[3].upper);
+      this.zoneForm.get('zoneEmergency.lower').setValue(this.data.item.children[4].lower);
+      this.zoneForm.get('zoneEmergency.upper').setValue(this.data.item.children[4].upper);
+    }
+
   }
 
   rangeValidationFunction(formGroup: FormGroup): any {
       let upper = formGroup.get('upper').value;
       let lower = formGroup.get('lower').value;
-      return ((upper === null) && (lower === null)) ? { needUpperLower: true } : null;
+      if(upper && lower) {
+        if (lower > upper) {
+          return {needUpperLower: true}
+        }
+      }
+      return null;
    }
 
+   zonesValidationFunction(formGroup: FormGroup): any {
+    // let normalLower = formGroup.get('zoneNormal.lower');
+    // let normalUpper = formGroup.get('zoneNormal.upper');
+    // let alertLower = formGroup.get('zoneAlert.lower');
+    // let alertUpper = formGroup.get('zoneAlert.upper');
+    // let warnLower = formGroup.get('zoneWarn.lower');
+    // let warnUpper = formGroup.get('zoneWarn.upper');
+    // let alarmLower = formGroup.get('zoneAlarm.lower');
+    // let alarmUpper = formGroup.get('zoneAlarm.upper');
+    // let emergencyLower = formGroup.get('zoneEmergency.lower');
+    // let emergencyUpper = formGroup.get('zoneEmergency.upper');
+
+    // if (normalUpper && alarmLower && normalUpper.value > alertLower.value) {
+    //   return {zonesInvalid: true};
+    // } else {
+    //   return null;
+    // }
+ }
+
   closeForm() {
+    if (this.zoneForm.get('zonesPath').disabled) this.zoneForm.get('zonesPath').enable();
     let zone: IPathZoneDef = {
       path: this.zoneForm.value.zonesPath,
       zonesDef: [
         {
           state: 0,
-          upper: this.zoneForm.value.zoneNormal.lower,
-          lower: this.zoneForm.value.zoneNormal.upper,
+          lower: this.zoneForm.value.zoneNormal.lower,
+          upper: this.zoneForm.value.zoneNormal.upper,
           message: null
         },
         {
           state: 1,
-          upper: this.zoneForm.value.zoneAlert.lower,
-          lower: this.zoneForm.value.zoneAlert.upper,
+          lower: this.zoneForm.value.zoneAlert.lower,
+          upper: this.zoneForm.value.zoneAlert.upper,
           message: null
         },
         {
           state: 2,
-          upper: this.zoneForm.value.zoneWarn.lower,
-          lower: this.zoneForm.value.zoneWarn.upper,
+          lower: this.zoneForm.value.zoneWarn.lower,
+          upper: this.zoneForm.value.zoneWarn.upper,
           message: null
         },
         {
           state: 3,
-          upper: this.zoneForm.value.zoneAlarm.lower,
-          lower: this.zoneForm.value.zoneAlarm.upper,
+          lower: this.zoneForm.value.zoneAlarm.lower,
+          upper: this.zoneForm.value.zoneAlarm.upper,
           message: null
         },
         {
           state: 4,
-          upper: this.zoneForm.value.zoneEmergency.lower,
-          lower: this.zoneForm.value.zoneEmergency.upper,
+          lower: this.zoneForm.value.zoneEmergency.lower,
+          upper: this.zoneForm.value.zoneEmergency.upper,
           message: null
         },
 
@@ -235,26 +278,5 @@ export class DialogNewZone implements OnInit {
     };
 
     this.dialogRef.close(zone);
-  }
-}
-
-
-// Edit zone compoment
-@Component({
-  selector: 'dialog-edit-zone',
-  templateUrl: 'settings-edit-zone.modal.html',
-  styleUrls: ['./settings-edit-zone.modal.css']
-})
-export class DialogEditZone {
-
-  constructor(
-    public dialogRef: MatDialogRef<DialogEditZone>,
-    @Inject(MAT_DIALOG_DATA) public zone: IPathZone,
-    ) {
-
-    }
-
-  closeForm() {
-    this.dialogRef.close(this.zone);
   }
 }

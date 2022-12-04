@@ -185,10 +185,11 @@ export class WidgetGaugeNgLinearComponent implements OnInit, OnDestroy, AfterCon
   }
 
   unsubscribeZones(){
-    if (this.zonesSub !== null) {
-      this.zonesSub.unsubscribe();
-      this.zonesSub = null;
-    }
+    // TODO: Update
+    // if (this.zonesSub !== null) {
+    //   this.zonesSub.unsubscribe();
+    //   this.zonesSub = null;
+    // }
   }
 
   openWidgetSettings() {

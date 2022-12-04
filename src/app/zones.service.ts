@@ -13,90 +13,33 @@ export interface IPathZone extends IPathZoneDef {
 })
 export class ZonesService {
 
-  private pathZoneState: IPathZone[];
+  private pathsZoneState: IPathZone[];
   private zones$: BehaviorSubject<Array<IPathZone>> = new BehaviorSubject<Array<IPathZone>>([]);
 
   constructor(
     private settings: AppSettingsService
   ) {
-    this.pathZoneState = this.settings.getZones();
-    this.setZoneState();
-    this.zones$.next(this.pathZoneState);
+    // Load zones from config
+    // looose object reference to get standalone zones obj
+    this.pathsZoneState = JSON.parse(JSON.stringify(this.settings.getZones()));
+    this.updateZones();
+    this.zones$.next(this.pathsZoneState);
 
-    // const zonesData: IPathZone[] =
-    // [
-    //   {
-    //     path: "self.propulsion.port.revolutions",
-    //     dataState: 0,
-    //     zonesDef: [
-    //       {
-    //         "lower": 0,
-    //         "upper": 2500,
-    //         "state": 0
-    //       },
-    //       {
-    //         "lower": 2500,
-    //         "upper": 2800,
-    //         "state": 1
-    //       },
-    //       {
-    //         "lower": 2800,
-    //         "upper": 3000,
-    //         "state": 2
-    //       },
-    //       {
-    //         "lower": 3000,
-    //         "upper": 3100,
-    //         "state": 3
-    //       },
-    //       {
-    //         "lower": 3100,
-    //         "state": 4,
-    //         "message": "Engine will blow up!!!"
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     path: "self.electrical.switches.bank.0.1.state",
-    //     dataState: 2,
-    //     zonesDef: [
-    //       {
-    //         "upper": 5,
-    //         "lower": 0,
-    //         "state": 0
-    //       },
-    //       {
-    //         "upper": 10,
-    //         "lower": 6,
-    //         "state": 1
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     path: "self.electrical.chargers.victron.yieldYesterday",
-    //     dataState: 4,
-    //     zonesDef: [
-    //       {
-    //       "lower": 0,
-    //       "upper": 50,
-    //       "state": 0
-    //       }
-    //     ]
-    //   }
-    // ];
+    //TODO: Eventually we should load zones defined in SK and combine with appropriate UI to override with local config as neccesary. At the moment zones are rearely present in SK.
+    // get sk service meta Zones info into pathsZoneState[]
   }
 
-  public addPathZones(newPathZoneDef: IPathZoneDef) {
+  public addZones(newPathZoneDef: IPathZoneDef) {
     // check if exists
-    let zoneIndex = this.pathZoneState.findIndex(item => item.path == newPathZoneDef.path);
+    let zoneIndex = this.pathsZoneState.findIndex(item => item.path == newPathZoneDef.path);
     if (zoneIndex >= 0) {
-      this.pathZoneState[zoneIndex].zonesDef = newPathZoneDef.zonesDef;
+      this.pathsZoneState[zoneIndex].zonesDef = newPathZoneDef.zonesDef;
     } else {
-      this.pathZoneState.push(newPathZoneDef);
+      this.pathsZoneState.push(newPathZoneDef);
     }
     // Compute zone state and push to observers
-    this.setZoneState(newPathZoneDef.path);
-    this.zones$.next(this.pathZoneState);
+    this.updateZones(newPathZoneDef.path);
+    this.zones$.next(this.pathsZoneState);
 
     // Save Zone configuration
     let zonesConfig = this.settings.getZones();
@@ -110,12 +53,12 @@ export class ZonesService {
     this.settings.saveZones(zonesConfig);
   }
 
-  public deletePathZones(path: string): boolean {
+  public deleteZones(path: string): boolean {
     // check if exists
-    let zoneIndex = this.pathZoneState.findIndex(item => item.path == path);
+    let zoneIndex = this.pathsZoneState.findIndex(item => item.path == path);
     if (zoneIndex >= 0) {
-      this.pathZoneState.splice(zoneIndex, 1);
-      this.zones$.next(this.pathZoneState);
+      this.pathsZoneState.splice(zoneIndex, 1);
+      this.zones$.next(this.pathsZoneState);
 
       // check if exists in zone config
       let zonesConfig = this.settings.getZones();
@@ -130,7 +73,7 @@ export class ZonesService {
     }
   }
 
-  setZoneState(path?: string){
+  public updateZones(path?: string){
   // //TODO: fix
   // // Check for any zones to set state
   // let state: IZoneState = IZoneState.normal;
