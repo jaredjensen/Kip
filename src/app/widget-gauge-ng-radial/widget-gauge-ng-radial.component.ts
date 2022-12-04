@@ -156,8 +156,8 @@ export class WidgetGaugeNgRadialComponent implements OnInit, OnDestroy, AfterCon
     }
   }
 
-   // Subscribe to theme event
-   subscribeTheme() {
+  // Subscribe to theme event
+  subscribeTheme() {
     this.themeNameSub = this.AppSettingsService.getThemeNameAsO().subscribe(
       themeChange => {
        setTimeout(() => {   // need a delay so browser getComputedStyles has time to complete theme application.

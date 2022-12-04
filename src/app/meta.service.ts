@@ -11,7 +11,7 @@ export interface IPathZone extends IPathZoneDef {
 @Injectable({
   providedIn: 'root'
 })
-export class ZonesService {
+export class MetaService {
 
   private pathsZoneState: IPathZone[];
   private zones$: BehaviorSubject<Array<IPathZone>> = new BehaviorSubject<Array<IPathZone>>([]);

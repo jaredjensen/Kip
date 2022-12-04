@@ -1,4 +1,3 @@
-import { ZonesService } from './zones.service';
 import { AuththeticationService } from './auththetication.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -12,6 +11,7 @@ import { AppSettingsService } from './app-settings.service';
 import { DataSetService } from './data-set.service';
 import { NotificationsService } from './notifications.service';
 import { SignalKDeltaService, IStreamStatus } from './signalk-delta.service';
+import { MetaService } from './meta.service';
 
 declare var NoSleep: any; //3rd party
 
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private deltaService: SignalKDeltaService,
     // below services are needed: first service instanciation after Init Service
     private signalKDeltaService: SignalKDeltaService, // needs SignalKService & NotificationsService & SignalKConnectionService
-    private ZonesService: ZonesService, // needs AppSettingsService
+    private MetaService: MetaService, // needs AppSettingsService
     ) { }
 
 

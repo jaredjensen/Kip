@@ -8,7 +8,7 @@ import { MatTreeNestedDataSource } from '@angular/material/tree';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
-import { ZonesService, IPathZone } from "../zones.service";
+import { MetaService, IPathZone } from "../meta.service";
 import { IZone, IZoneState, IPathZoneDef } from "../app.interfaces";
 
 interface ITreeData {
@@ -32,16 +32,16 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit, OnDestroy 
 
   public dataSource = new MatTreeNestedDataSource<ITreeData>();
   public treeControl = new NestedTreeControl<ITreeData>(node => node.children);
-  private zonesSub: Subscription;
+  private metaSub: Subscription;
 
   constructor(
-    private zones: ZonesService,
+    private meta: MetaService,
     public dialog: MatDialog,
     private cdRef: ChangeDetectorRef,
     ) { }
 
   ngOnInit() {
-    this.zonesSub = this.zones.getZonesObservable().subscribe(zoneItems => {
+    this.metaSub = this.meta.getZonesObservable().subscribe(zoneItems => {
       // transform service data structure to tree control data srtucture
       let zoneData: ITreeData[] = [];
       zoneItems.forEach(item => {
@@ -119,17 +119,17 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   public addZones(zone: IPathZone) {
-    this.zones.addZones(zone);
+    this.meta.addZones(zone);
   }
 
   public deleteZones(node: any) {
-    if (!this.zones.deleteZones(node.path)) {
+    if (!this.meta.deleteZones(node.path)) {
       //TODO: Send error notification as UI confirmation
     }
   }
 
   ngOnDestroy(): void {
-    this.zonesSub.unsubscribe();
+    this.metaSub.unsubscribe();
   }
 }
 

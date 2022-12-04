@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ZonesService } from './zones.service';
+import { MetaService } from './meta.service';
 
 describe('ZonesService', () => {
-  let service: ZonesService;
+  let service: MetaService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ZonesService);
+    service = TestBed.inject(MetaService);
   });
 
   it('should be created', () => {
