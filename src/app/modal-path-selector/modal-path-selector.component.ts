@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnChanges, SimpleChange  } from '@angular/core';
 import { SignalKService } from '../signalk.service';
-import { IPathMetaData } from "../app.interfaces";
+// import { IPathMetaData } from "../app.interfaces";
 import { UnitsService, IUnitGroup } from '../units.service';
 import { FormGroup, FormControl,Validators } from '@angular/forms';
 import { map, startWith } from 'rxjs/operators';
@@ -16,8 +16,10 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
   //path control
   @Input() formGroup: FormGroup;
   @Input() filterSelfPaths: boolean;
-  availablePaths: IPathMetaData[];
-  filteredPaths: Observable<IPathMetaData[]> = new Observable;
+
+  //TODO: Fix any with proper new Interface for path meta, etc. use to be IPathMetaData
+  availablePaths: any[];
+  filteredPaths: Observable<any[]> = new Observable;
 
   //source control
   availableSources: Array<string>;
@@ -27,7 +29,7 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
   default: string;
 
   ////require-match validation for path
-  requirePathMatch = (allPathsAndMeta: IPathMetaData[]) => {
+  requirePathMatch = (allPathsAndMeta: any[]) => {
     return (control: FormControl) => {
       const selection: any = control.value;
       if (allPathsAndMeta.some(pm => pm.path === selection)) {
@@ -92,12 +94,13 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
  }
 
   getPaths(isOnlySef: boolean) {
+    //TODO: update to meta service to match path data and meta
     this.availablePaths = this.signalKService.getPathsAndMetaByType(this.formGroup.value.pathType, isOnlySef).sort();
     // path validator (must be path in available) Need to reset validators when paths change
     this.formGroup.controls['path'].setValidators([Validators.required]); //, this.requirePathMatch(this.availablePaths)]); // allow non-existing paths, maybe new path?
   }
 
-  filterPaths( value: string ): IPathMetaData[] {
+  filterPaths( value: string ): any[] {
     const filterValue = value.toLowerCase();
     return this.availablePaths.filter(pathAndMetaObj => pathAndMetaObj.path.toLowerCase().includes(filterValue)).slice(0,50);
   }

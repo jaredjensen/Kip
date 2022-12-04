@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ResizedEvent } from 'angular-resize-event';
 
-import { IZone, IZoneState } from '../app.interfaces';
+import { IZone, IZoneState } from '../signalk-interfaces';
 import { AppSettingsService } from '../app-settings.service';
 import { SignalKService } from '../signalk.service';
 import { UnitsService } from '../units.service';

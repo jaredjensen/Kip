@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable , BehaviorSubject, Subscription } from 'rxjs';
-import { IPathData, IPathValueData, IPathMetaData, IPathValue, IDefaultSource, IMeta } from "./app.interfaces";
+import { IPathData, IPathValueData, IDefaultSource} from "./app.interfaces";
+import { ISignalKMeta } from "./signalk-interfaces";
 import { AppSettingsService } from './app-settings.service';
 import { SignalKDeltaService } from './signalk-delta.service';
 import { UnitsService, IUnitDefaults, IUnitGroup } from './units.service';
@@ -95,11 +96,6 @@ export class SignalKService {
     this.deltaService.subscribeDataPathsUpdates().subscribe((dataPath: IPathValueData) => {
       this.updatePathData(dataPath);
     });
-
-    // Observer of Delta service Metadata updates
-    this.deltaService.subscribeMetadataUpdates().subscribe((deltaMeta: IMeta) => {
-      this.setMeta(deltaMeta);
-    })
 
     // Observer of vessel Self URN updates
     this.deltaService.subscribeSelfUpdates().subscribe(self => {
@@ -255,22 +251,6 @@ export class SignalKService {
     }
   }
 
-  private setMeta(meta: IMeta): void {
-    let pathSelf: string = meta.path.replace(this.selfurn, 'self');
-    let pathIndex = this.paths.findIndex(pathObject => pathObject.path == pathSelf);
-    if (pathIndex >= 0) {
-      this.paths[pathIndex].meta = meta.meta;
-    } else { // not in our list yet. Meta update can in first. Create the path with empty source values for later update
-      this.paths.push({
-        path: pathSelf,
-        defaultSource: null,
-        sources: {},
-        meta: meta.meta,
-        type: null
-      });
-    }
-  }
-
   /**
    * Returns a list of all known SignalK paths of the specified type (sting or numeric)
    * @param valueType data type: string or numeric
@@ -297,22 +277,22 @@ export class SignalKService {
     return this.pathsObservale.asObservable();
   }
 
-  getPathsAndMetaByType(valueType: string, selfOnly?: boolean): IPathMetaData[] { //TODO(David): See how we should handle string and boolean type value. We should probably return error and not search for it, plus remove from the Units UI.
-    let pathsMeta: IPathMetaData[] = [];
+  getPathsAndMetaByType(valueType: string, selfOnly?: boolean): ISignalKMeta[] { //TODO(David): See how we should handle string and boolean type value. We should probably return error and not search for it, plus remove from the Units UI.
+    let pathsMeta: ISignalKMeta[] = [];
     for (let i = 0; i < this.paths.length;  i++) {
        if (this.paths[i].type == valueType) {
          if (selfOnly) {
           if (this.paths[i].path.startsWith("self")) {
-            let p:IPathMetaData = {
+            let p:ISignalKMeta = {
               path: this.paths[i].path,
-              meta: this.paths[i].meta,
+              value: this.paths[i].meta,
             };
             pathsMeta.push(p);
           }
          } else {
-          let p:IPathMetaData = {
+          let p:ISignalKMeta = {
             path: this.paths[i].path,
-            meta: this.paths[i].meta,
+            value: this.paths[i].meta,
           };
           pathsMeta.push(p);
          }

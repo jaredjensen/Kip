@@ -3,9 +3,10 @@ import { BehaviorSubject, delay, Observable , retryWhen, Subject, tap } from 'rx
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 import { ISignalKDeltaMessage, ISignalKMeta, ISignalKUpdateMessage } from './signalk-interfaces';
-import { IMeta, INotification, IPathValueData } from "./app.interfaces";
-import { SignalKConnectionService, IEndpointStatus } from './signalk-connection.service'
+import { INotification, IPathValueData, IPathMetadata } from "./app.interfaces";
+import { SignalKConnectionService, IEndpointStatus } from './signalk-connection.service';
 import { AuththeticationService, IAuthorizationToken } from './auththetication.service';
+
 
 
 /**
@@ -41,7 +42,7 @@ export class SignalKDeltaService {
   // SignalK data path message stream Observable
   private signalKDatapath$ = new Subject<IPathValueData>();
   // SignalK Metadata message stream Observer
-  private signalKMetadata$ = new Subject<IMeta>();
+  private signalKMetadata$ = new Subject<IPathMetadata>();
   // Self URN message stream Observer
   private vesselSelfUrn$ = new Subject<string>();
 
@@ -328,9 +329,9 @@ export class SignalKDeltaService {
     if (Object.keys(metadata).length === 0) {
       return;
     } else {
-      let meta: IMeta;
+      let meta: IPathMetadata;
       // does meta have one with properties for each one?
-      if (metadata.value.properties !== undefined) {
+      if (metadata.value?.properties !== undefined) {
         Object.keys(metadata.value.properties).forEach(key => {
           meta = {
             path: `${context}.${metadata.path}.${key}`,
@@ -365,7 +366,7 @@ export class SignalKDeltaService {
     return this.signalKDatapath$.asObservable();
   }
 
-  public subscribeMetadataUpdates() : Observable<IMeta> {
+  public subscribeMetadataUpdates() : Observable<IPathMetadata> {
     return this.signalKMetadata$.asObservable();
   }
 

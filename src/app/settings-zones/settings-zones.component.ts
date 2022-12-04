@@ -9,7 +9,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { MetaService, IPathZone } from "../meta.service";
-import { IZone, IZoneState, IPathZoneDef } from "../app.interfaces";
+import { IZone, IZoneState } from "../signalk-interfaces";
+import {IPathZoneDef } from "../app.interfaces";
 
 interface ITreeData {
   path?: string;
@@ -41,30 +42,31 @@ export class SettingsZonesComponent implements OnInit, AfterViewInit, OnDestroy 
     ) { }
 
   ngOnInit() {
-    this.metaSub = this.meta.getZonesObservable().subscribe(zoneItems => {
-      // transform service data structure to tree control data srtucture
-      let zoneData: ITreeData[] = [];
-      zoneItems.forEach(item => {
-        let dataItem: ITreeData = {children: []};
-        dataItem.path = item.path;
-        dataItem.dataState = item.dataState;
+    //TODO: update
+    // this.metaSub = this.meta.getMetasObservable().subscribe(metaItems => {
+    //   // transform service data structure to tree control data srtucture
+    //   let zoneData: ITreeData[] = [];
+    //   metaItems.forEach(item => {
+    //     let dataItem: ITreeData = {children: []};
+    //     dataItem.path = item.path;
+    //     dataItem.dataState = item.dataState;
 
-        if (item.zonesDef) {
-          item.zonesDef.forEach( zoneDef => {
-            let zone: ITreeData = {};
-            zone.state = zoneDef.state;
-            zone.lower = zoneDef.lower;
-            zone.upper = zoneDef.upper;
-            zone.message = zoneDef.message;
+    //     if (item.zonesDef) {
+    //       item.zonesDef.forEach( zoneDef => {
+    //         let zone: ITreeData = {};
+    //         zone.state = zoneDef.state;
+    //         zone.lower = zoneDef.lower;
+    //         zone.upper = zoneDef.upper;
+    //         zone.message = zoneDef.message;
 
-            dataItem.children.push(zone);
-          });
-        }
-        zoneData.push(dataItem);
-      })
+    //         dataItem.children.push(zone);
+    //       });
+    //     }
+    //     zoneData.push(dataItem);
+    //   })
 
-    this.dataSource.data = zoneData;
-    });
+    // this.dataSource.data = zoneData;
+    // });
   }
 
   ngAfterViewInit() {

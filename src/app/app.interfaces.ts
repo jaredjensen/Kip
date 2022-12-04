@@ -8,8 +8,13 @@
  * For Signal K data interfaces (external data), see signalk-interfaces file.
  *********************************************************************************/
 
-import { ISignalKMetadata, State, Method } from "./signalk-interfaces";
+import { ISignalKMetadata, IZone, State, Method } from "./signalk-interfaces";
 
+
+export interface IPathMetadata {
+  path: string;
+  meta: ISignalKMetadata;
+}
 
 /**
  * An App data structure that represents a simple data path's most recent
@@ -38,41 +43,6 @@ export interface IPathValue {
 export interface IPathZoneDef {
   path: string;
   zonesDef: IZone[];
-}
-
-/**
- * An App data structure that represents a data path's zone definition
- * (ie. the different state the data is in). Used for gauges and notification menu.
- *
- * Ex: to vusually display the different state an engine RPM is at: normal, alarn,
- * emergency, etc. on a radial gauge subcribed to self.propulsion.engines.port
- *
- * Use by: zones service
- *
- * @memberof app-interfaces
- */
-export interface IZone {
-  upper?: number;
-  lower?: number;
-  message?: string;
-  state: IZoneState;
-}
-
-/**
- * An App data enumeration that represents possible data zones states
- * (ie. data severity state). Used for gauges and notification menu.
-
- * Use by: zones services (parser)
- *
- * @memberof app-interfaces
- */
-export enum IZoneState {
-  normal = 0, // default state
-  alert = 1,
-  warn = 2,
-  alarm = 3,
-  emergency = 4,
-  nominal = 5 //special state meaning "in the normal operating range". Gauge implementation required see: https://signalk.org/specification/1.7.0/doc/data_model_metadata.html
 }
 
 /**
@@ -109,22 +79,9 @@ export enum IZoneState {
       value: any;
     }
   }
-  meta?: ISignalKMetadata;
+  //TODO: REMOVE Meta from here
+  meta?: any;
   type: string;
-}
-
-/**
- * An App data structure that represents all meta values of a path. Used
- * as an interface to access meta data subset extracted from internal App
- * paths data source.
- *
- * Use by: modal-path-selection (consumer), setting-zones (consumer) and signalk (internal datasource) service
- *
- * @memberof app-interfaces
- */
- export interface IPathMetaData {
-  path: string;
-  meta?: ISignalKMetadata;
 }
 
 /**
@@ -148,9 +105,4 @@ export enum IZoneState {
 export interface IDefaultSource {
   path: string;
   source: string;
-}
-
-export interface IMeta {
-  path: string;
-  meta: ISignalKMetadata;
 }

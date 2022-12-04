@@ -2,7 +2,7 @@ import { Component, Input, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewCh
 import { Subscription } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 
-import { IZoneState } from "../app.interfaces";
+import { IZoneState } from "../signalk-interfaces";
 import { AppSettingsService } from '../app-settings.service';
 import { SignalKService } from '../signalk.service';
 import { UnitsService } from '../units.service';
