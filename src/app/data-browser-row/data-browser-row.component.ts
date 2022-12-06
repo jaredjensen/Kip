@@ -1,3 +1,4 @@
+import { MetaService } from './../meta.service';
 import { Component, Input, OnInit, ViewEncapsulation, Inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
@@ -23,13 +24,20 @@ export class DataBrowserRowComponent implements OnInit {
   constructor(
     private signalKService: SignalKService,
     private unitsService: UnitsService,
+    private meta: MetaService,
     public dialog: MatDialog
   ) {
 
   }
 
   ngOnInit() {
-    this.units = this.signalKService.getConversionsForPath(this.path);
+    let meta = this.meta.getMeta(this.path);
+    if (meta && meta.units !== undefined) {
+      this.units = this.unitsService.getConversionsForUnits(meta.units);
+    } else {
+      this.units = this.unitsService.getConversionsForUnits(null);
+    }
+
     this.selectedUnit = this.units.default;
   }
 

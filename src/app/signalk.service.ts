@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable , BehaviorSubject, Subscription } from 'rxjs';
+import { Observable , BehaviorSubject } from 'rxjs';
 import { IPathData, IPathValueData, IDefaultSource, IPathType, IMetaPathType} from "./app.interfaces";
-import { AppSettingsService } from './app-settings.service';
 import { SignalKDeltaService } from './signalk-delta.service';
-import { UnitsService, IUnitDefaults, IUnitGroup } from './units.service';
 import * as Qty from 'js-quantities';
 
 
@@ -52,14 +50,8 @@ export class SignalKService {
   secondsUpdatesBehaviorSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
   minutesUpdatesBehaviorSubject: BehaviorSubject<number[]> = new BehaviorSubject<number[]>([]);
 
-  defaultUnits: IUnitDefaults;
-  defaultUnitsSub: Subscription;
-  conversionList: IUnitGroup[];
-
   constructor(
-    private settings: AppSettingsService,
     private delta: SignalKDeltaService,
-    private units: UnitsService,
   )
   {
     //every second update the stats for seconds array
@@ -86,14 +78,6 @@ export class SignalKService {
 
     }, 60000);
 
-    this.defaultUnitsSub = this.settings.getDefaultUnitsAsO().subscribe(
-      newDefaults => {
-        this.defaultUnits = newDefaults;
-      }
-    );
-
-    this.conversionList = this.units.getConversions();
-
     // Observer of Delta service data path updates
     this.delta.subscribeDataPathsUpdates().subscribe((dataPath: IPathValueData) => {
       this.updatePathData(dataPath);
@@ -113,19 +97,19 @@ export class SignalKService {
     return this.minutesUpdatesBehaviorSubject.asObservable();
   }
 
-  resetSignalKData() {
+  public resetSignalKData() {
     this.paths = [];
-    this.selfurn = 'self';
+    this.selfurn = null;
   }
 
-  unsubscribePath(uuid, path) {
+  public unsubscribePath(uuid, path) {
     let registerIndex = this.pathRegister.findIndex(registration => (registration.path == path) && (registration.uuid == uuid));
     if (registerIndex >= 0) {
       this.pathRegister.splice(registerIndex,1);
     }
   }
 
-  subscribePath(uuid: string, path: string, source: string) {
+  public subscribePath(uuid: string, path: string, source: string) {
     //see if already subscribed, if yes return that...
     let registerIndex = this.pathRegister.findIndex(registration => (registration.path == path) && (registration.uuid == uuid));
     if (registerIndex >= 0) { // exists
@@ -171,6 +155,7 @@ export class SignalKService {
     this.updateStatistics.currentSecond++;
 
     // Convert position data to match Kip's default position format - could be removed for performance
+    //TODO:  sk default is 'deg' why do we convert? Do we need another Position unit Goup to remove this?
     if (dataPath.path.includes('position.latitude') || dataPath.path.includes('position.longitude')) {
       dataPath.value = this.degToRad(dataPath.value);
     }
@@ -280,64 +265,6 @@ export class SignalKService {
     let pathIndex = this.paths.findIndex(pathObject => pathObject.path == path);
     if (pathIndex < 0) { return null; }
     return {...this.paths[pathIndex]} // unpack object to loose reference
-  }
-
-  public getPathUnitType(path: string): string {
-    let pathIndex = this.paths.findIndex(pathObject => pathObject.path == path);
-    if (pathIndex < 0) { return null; }
-    if (('meta' in this.paths[pathIndex]) && ('units' in this.paths[pathIndex].meta)) {
-      return this.paths[pathIndex].meta.units;
-    } else {
-      return null;
-    }
-  }
-
-  /**
-   * Obtain a list of possible Kip value type conversions for a given path. ie,.: Speed conversion group
-   * (kph, Knots, etc.). The conversion list will be trimmed to only the conversions for the group in question.
-   * If a default value type (provided by server) for a path cannot be found,
-   * the full list is returned and with 'unitless' as the default. Same goes if the value type exists,
-   * but Kip does not handle it...yet.
-   *
-   * @param path The SignalK path of the value
-   * @return conversions Full list array or subset of list array
-   */
-  getConversionsForPath(path: string): { default: string, conversions: IUnitGroup[] } {
-    let pathUnitType = this.getPathUnitType(path);
-    let groupList = [];
-    let isUnitInList: boolean = false;
-    let defaultUnit: string = "unitless"
-    // if this Path has no predefined Unit type (from Meta or elsewhere) set to unitless
-    if (pathUnitType === null) {
-      return { default: 'unitless', conversions: this.conversionList };
-    } else {
-      // if this Widget has a configured Unit for this Path, only return all Units within same group.
-      // The Assumption is that we should only use conversions group rules.
-      for (let index = 0; index < this.conversionList.length; index++) {
-        const unitGroup:IUnitGroup = this.conversionList[index];
-
-         // add position group if position path
-         if (unitGroup.group == 'Position' && (path.includes('position.latitude') || path.includes('position.longitude'))) {
-          groupList.push(unitGroup)
-        }
-
-        unitGroup.units.forEach(unit => {
-          if (unit.measure == pathUnitType) {
-            isUnitInList = true;
-            defaultUnit = this.defaultUnits[unitGroup.group];
-            groupList.push(unitGroup);
-          }
-        });
-      }
-    }
-
-    if (isUnitInList) {
-
-      return { default: defaultUnit, conversions: groupList };
-    }
-    // default if we have a unit for the Path but it's not know by Kip
-    console.log("[SignalK Service] Unit type: " + pathUnitType + ", found for path: " + path + "\nbut Kip does not support it.");
-    return { default: 'unitless', conversions: this.conversionList };
   }
 
   public getPathsObservable(): Observable<IPathData[]> {

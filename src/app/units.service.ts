@@ -282,19 +282,63 @@ export class UnitsService {
     },
   }
 
-
-
-  convertUnit(unit: string, value: number): number {
+  public convertUnit(unit: string, value: number): number {
     if (!(unit in this.unitConversionFunctions)) { return null; }
     if (value === null) { return null; }
     return this.unitConversionFunctions[unit](value);
   }
 
-  getDefaults(): IUnitDefaults {
+  public getDefaults(): IUnitDefaults {
     return this.defaultUnits;
   }
-  getConversions(): IUnitGroup[] {
+  public getConversions(): IUnitGroup[] {
     return this.conversionList;
+  }
+
+  /** //TODO: update description
+   * Obtain a list of possible Kip value type conversions for a given path. ie,.: Speed conversion group
+   * (kph, Knots, etc.). The conversion list will be trimmed to only the conversions for the group in question.
+   * If a default value type (provided by server) for a path cannot be found,
+   * the full list is returned and with 'unitless' as the default. Same goes if the value type exists,
+   * but Kip does not handle it...yet.
+   *
+   * @param path the path you want conversions for
+   * @return object containing the default format and an array of possible conversion group(s)
+   */
+   public getConversionsForUnits(units: string): { default: string, conversions: IUnitGroup[] } {
+    let groupList = [];
+    let isUnitInList: boolean = false;
+    let defaultUnit: string = "unitless";
+    // if Units type, set to unitless
+    if (units === null || units === "" || units === undefined) {
+      return { default: 'unitless', conversions: this.conversionList };
+    } else {
+      // only return all Units of matching conversion group.
+      for (let index = 0; index < this.conversionList.length; index++) {
+        const unitGroup:IUnitGroup = this.conversionList[index];
+
+        //TODO: Fix position... looks like we used paths but should not. Also see position conversion in signalk service in updatePathData()
+        // add position group if position path
+        // if (unitGroup.group == 'Position' && (path.includes('position.latitude') || path.includes('position.longitude'))) {
+        //   groupList.push(unitGroup)
+        // }
+
+        unitGroup.units.forEach(unit => {
+          if (unit.measure == units) {
+            isUnitInList = true;
+            defaultUnit = this.defaultUnits[unitGroup.group];
+            groupList.push(unitGroup);
+          }
+        });
+      }
+    }
+
+    if (isUnitInList) {
+      return { default: defaultUnit, conversions: groupList };
+    }
+    // default if we have an unknown unit
+    console.warn("[Units Service] Unsupported Unit type found: " + units + ". Please copy this message and create a git issue to request additionnal unit type support.");
+    return { default: 'unitless', conversions: this.conversionList };
   }
 
 }

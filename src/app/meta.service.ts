@@ -86,11 +86,6 @@ export class MetaService {
   }
 
   private setMeta(meta: IPathMetadata): void {
-    //TODO: Clean up
-    // if (meta.meta.type !== undefined && meta.meta.type !== 'number') {
-    //   console.log(meta.meta)
-    // }
-
     let metaIndex = this.metas.findIndex(pathObject => pathObject.path == meta.path);
     if (metaIndex >= 0) {
       this.metas[metaIndex].meta = {...this.metas[metaIndex].meta, ...meta.meta};
@@ -124,6 +119,16 @@ export class MetaService {
       }
     }
     return false;
+  }
+
+  public getPathUnitType(path: string): string | null {
+    let index = this.metas.findIndex(item => item.path == path);
+    if (index < 0) { return null; }
+    if ('units' in this.metas[index].meta) {
+      return this.metas[index].meta.units;
+    } else {
+      return null;
+    }
   }
 
   public addZones(newPathZoneDef: IPathZoneDef) {
@@ -175,6 +180,7 @@ export class MetaService {
     }
   }
 
+  //TODO: Is it needed?
   public updatePathDataState() {
 
   }

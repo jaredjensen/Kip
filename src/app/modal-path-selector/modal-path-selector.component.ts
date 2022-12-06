@@ -1,3 +1,4 @@
+import { UnitsService } from './../units.service';
 
 import { Component, Input, OnInit, OnChanges, SimpleChange  } from '@angular/core';
 import { map, startWith } from 'rxjs/operators';
@@ -42,7 +43,8 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
 
   constructor(
     private signalk: SignalKService,
-    private meta: MetaService
+    private meta: MetaService,
+    private units: UnitsService
     ) { }
 
   ngOnInit() {
@@ -71,11 +73,15 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
         if (this.formGroup.controls['path'].valid) {
           this.formGroup.controls['source'].enable();
           this.formGroup.controls['source'].patchValue('default');
-          this.formGroup.controls['convertUnitTo'].enable();
-          this.formGroup.controls['convertUnitTo'].patchValue(this.unitList.default);
+          if (this.formGroup.value.pathType == "number") {
+            this.formGroup.controls['convertUnitTo'].enable();
+            this.formGroup.controls['convertUnitTo'].patchValue(this.unitList.default);
+          }
         } else {
           this.formGroup.controls['source'].disable();
-          this.formGroup.controls['convertUnitTo'].disable();
+          if (this.formGroup.value.pathType == "number") {
+            this.formGroup.controls['convertUnitTo'].disable();
+          }
         }
       } catch (error) {
         console.debug(error);
@@ -100,7 +106,7 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
 
   filterPaths( value: string ): any[] {
     const filterValue = value.toLowerCase();
-    return this.availablePaths.filter(item => item.path.toLowerCase().includes(filterValue)).slice(0,50);
+    return [...this.availablePaths.filter(item => item.path.toLowerCase().includes(filterValue)).slice(0,50)];
   }
 
 
@@ -127,7 +133,16 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
 
       }
     }
-    this.unitList = this.signalk.getConversionsForPath(this.formGroup.controls['path'].value); // array of Group or Groups: "angle", "speed", etc...
+
+    let pathUnits: string = null;
+    const index = this.availablePaths.findIndex(item => item.path === this.formGroup.controls['path'].value);
+      if (index >= 0) {
+        if (this.availablePaths[index].meta.units !== undefined) {
+          pathUnits = this.availablePaths[index].meta.units;
+        }
+      }
+
+    this.unitList = this.units.getConversionsForUnits(pathUnits); // array of Group or Groups: "angle", "speed", etc...
   }
 
 }
