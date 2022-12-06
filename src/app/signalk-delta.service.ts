@@ -45,6 +45,7 @@ export class SignalKDeltaService {
   private signalKMetadata$ = new Subject<IPathMetadata>();
   // Self URN message stream Observer
   private vesselSelfUrn$ = new Subject<string>();
+  private vesselSelfUrn: string = "self";
 
   // Delta Service Endpoint status publishing
   public streamEndpoint: IStreamStatus = {
@@ -237,7 +238,10 @@ export class SignalKDeltaService {
       console.warn("[Delta Service] Service sent stream error message: " + message.errorMessage); // server error message ie. socket failed or closing, sk bug, sk restarted, etc.
 
     } else if (message.self) {
-      this.vesselSelfUrn$.next(message.self);
+      this.vesselSelfUrn = message.self;
+      console.log('[Delta Service] Vessel Self is: ' + message.self);
+      this.vesselSelfUrn$.next(this.vesselSelfUrn);
+
       this.server.setServerInfo(message.name, message.version, message.roles); // is server Hello message
 
     } else { // not in our list of message types....
@@ -246,9 +250,7 @@ export class SignalKDeltaService {
   }
 
   private parseUpdates(updates: ISignalKUpdateMessage[], context: string) {
-    if (!context) {
-      context = 'self'; //default if not defined
-    }
+    context = context.replace(this.vesselSelfUrn, 'self') // Convert our path full URN to "self" short version (better for display purposes) - could be removed for performance and implemented as a filter further down the service chain
 
     for (let update of updates) {
       // process source identifier. 'src' is nmea2k and 'talker' is nmea0183

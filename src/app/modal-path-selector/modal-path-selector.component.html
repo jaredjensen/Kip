@@ -3,7 +3,7 @@
     <p>{{formGroup.value.description}}</p>
     <div class="pathGroupFields">
       <mat-form-field class="pathField" appearance="outline" floatLabel="always">
-        <mat-label>SignalK Path</mat-label>
+        <mat-label>Data Path</mat-label>
         <input type="text" matInput
           placeholder="Select path (note dropdown limited to 50, type to use autocomplete)"
           formControlName="path"
@@ -14,7 +14,7 @@
         </button>
         <mat-autocomplete #pathAutoComplete="matAutocomplete">
           <mat-option *ngFor="let pathAndMeta of filteredPaths | async" [value]="pathAndMeta.path"  style="min-height: 48px; line-height: 1.15; height: auto; padding: 8px 16px; white-space: normal;">
-            <ng-container *ngIf="(pathAndMeta.meta != undefined)">
+            <ng-container *ngIf="(pathAndMeta.meta !== undefined)">
               <span>{{pathAndMeta.path}}</span>
               <br>
               <small class="pathMetaDescription">{{pathAndMeta.meta.description}}</small>

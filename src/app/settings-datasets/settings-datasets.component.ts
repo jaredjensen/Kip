@@ -130,7 +130,7 @@ export class SettingsDatasetsModalComponent implements OnInit {
 
   public formDataset: IDataSet = null;
 
-  public availablePaths: string[] = [];
+  public availablePaths: any[] = [];
   public availableSources: string[] = [];
   public filterSelfPaths:boolean = true;
 
@@ -155,7 +155,7 @@ export class SettingsDatasetsModalComponent implements OnInit {
       this.formDataset = this.newDataset;
     }
 
-    this.availablePaths = this.SignalKService.getPathsByType('number').sort();
+    this.availablePaths = this.SignalKService.getPaths('number').sort();
   }
 
   public changePath() { // called when we choose a new path. Resets the form old value with default info of this path

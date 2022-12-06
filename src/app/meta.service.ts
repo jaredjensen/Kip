@@ -1,8 +1,9 @@
+import { SignalKService } from './signalk.service';
 import { SignalKDeltaService } from './signalk-delta.service';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { IPathMetadata, IPathZoneDef } from "./app.interfaces";
-import { ISignalKMeta, ISignalKMetadata } from "./signalk-interfaces";
+import { IMetaPathType, IPathMetadata, IPathZoneDef } from "./app.interfaces";
+import { ISignalKMetadata } from "./signalk-interfaces";
 import { AppSettingsService } from './app-settings.service';
 
 
@@ -32,7 +33,8 @@ export class MetaService {
 
   constructor(
     private settings: AppSettingsService,
-    private delta: SignalKDeltaService
+    private delta: SignalKDeltaService,
+    private signalk: SignalKService
   ) {
     // Load zones from config
     const zonesConfig = this.settings.getZones();
@@ -53,10 +55,15 @@ export class MetaService {
       this.setMeta(deltaMeta);
     })
 
-    //TODO: remove and move to Delta service
-    // Observer of vessel Self URN updates
+    // Observer of signalk service new unknown path updates
+    this.signalk.getNewPathsAsO().subscribe((path: IMetaPathType) => {
+      this.addMetaPath(path);
+    })
+
+
+    // Observer of vessel Self URN
     this.delta.subscribeSelfUpdates().subscribe(self => {
-      this.setSelfUrn(self);
+      this.selfurn = self;
     });
 
 
@@ -64,25 +71,59 @@ export class MetaService {
     // get sk service meta Zones info into metas[]
   }
 
-    //TODO: remove and move to Delta service
-  private setSelfUrn(value: string) {
-    if ((value != "" || value != null) && value != this.selfurn) {
-      console.debug('[SignalK Service] Setting self to: ' + value);
-      this.selfurn = value;
+  private addMetaPath(newPath: IMetaPathType) {
+    let metaIndex = this.metas.findIndex(item => item.path == newPath.path);
+    if (metaIndex == -1) {
+      this.metas.push({
+        path: newPath.path,
+        meta: {
+          type: newPath.meta.type
+        }
+      });
+    } else {
+      this.metas[metaIndex].meta.type = newPath.meta.type;
     }
   }
 
   private setMeta(meta: IPathMetadata): void {
-    let pathSelf: string = meta.path.replace(this.selfurn, 'self');
-    let metaIndex = this.metas.findIndex(pathObject => pathObject.path == pathSelf);
+    //TODO: Clean up
+    // if (meta.meta.type !== undefined && meta.meta.type !== 'number') {
+    //   console.log(meta.meta)
+    // }
+
+    let metaIndex = this.metas.findIndex(pathObject => pathObject.path == meta.path);
     if (metaIndex >= 0) {
       this.metas[metaIndex].meta = {...this.metas[metaIndex].meta, ...meta.meta};
-    } else { // not in our list yet. Meta update can in first. Create the path with empty source values for later update
+    } else { // not in our list yet. We add a new path
       this.metas.push({
-        path: pathSelf,
+        path: meta.path,
         meta: meta.meta,
       });
     }
+  }
+
+  public getMetaPaths(valueType?: string, selfOnly?: boolean): IMetaRegistration[] {
+    let metaPaths: IMetaRegistration[] = [...this.metas]; // copy values - loose reference
+
+    if (selfOnly) {
+      metaPaths = metaPaths.filter( item => item.path.startsWith("self") );
+    }
+
+    if (valueType) {
+      metaPaths = metaPaths.filter( item => item.meta.type !== undefined && item.meta.type == valueType );
+    }
+
+    return metaPaths;
+  }
+
+  public getMeta(path: string): ISignalKMetadata | false {
+    let index = this.metas.findIndex( item => item.path === path);
+    if (index >= 0) {
+      if (this.metas[index].meta !== undefined) {
+        return this.metas[index].meta;
+      }
+    }
+    return false;
   }
 
   public addZones(newPathZoneDef: IPathZoneDef) {

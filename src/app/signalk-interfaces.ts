@@ -153,6 +153,7 @@ export interface ISignalKDataValueUpdate {
  * @memberof signalk-interfaces
  */
 export interface ISignalKMetadata {
+  type?: string;
   displayName?: string;
   shortName?: string;
   longName?: string;

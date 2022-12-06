@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable , BehaviorSubject, Subscription } from 'rxjs';
-import { IPathData, IPathValueData, IDefaultSource} from "./app.interfaces";
-import { ISignalKMeta } from "./signalk-interfaces";
+import { IPathData, IPathValueData, IDefaultSource, IPathType, IMetaPathType} from "./app.interfaces";
 import { AppSettingsService } from './app-settings.service';
 import { SignalKDeltaService } from './signalk-delta.service';
 import { UnitsService, IUnitDefaults, IUnitGroup } from './units.service';
@@ -30,16 +29,19 @@ export interface updateStatistics {
 })
 export class SignalKService {
 
-  degToRad = Qty.swiftConverter('deg', 'rad');
-  selfurn: string = 'self'; // self urn, should get updated on first delta or rest call.
+  private degToRad = Qty.swiftConverter('deg', 'rad');
+  private selfurn: string;
 
   // Local array of paths containing received SignalK Data and used to source Observers
-  paths: IPathData[] = [];
+  private paths: IPathData[] = [];
   // List of paths used by Kip (Widgets or App (Notifications and such))
-  pathRegister: pathRegistration[] = [];
+  private pathRegister: pathRegistration[] = [];
 
-  // path Observable
-  pathsObservale: BehaviorSubject<IPathData[]> = new BehaviorSubject<IPathData[]>([]);
+  // path Observable to monitor data (sources and values) changes
+  private pathsObservale: BehaviorSubject<IPathData[]> = new BehaviorSubject<IPathData[]>([]);
+
+  // path Observable of new unknown paths
+  private newPath$: BehaviorSubject<IMetaPathType> = new BehaviorSubject<IMetaPathType>({path: 'self.name', meta: {type: 'string'}});
 
   // Performance stats
   updateStatistics: updateStatistics = {
@@ -56,7 +58,7 @@ export class SignalKService {
 
   constructor(
     private settings: AppSettingsService,
-    private deltaService: SignalKDeltaService,
+    private delta: SignalKDeltaService,
     private units: UnitsService,
   )
   {
@@ -93,13 +95,13 @@ export class SignalKService {
     this.conversionList = this.units.getConversions();
 
     // Observer of Delta service data path updates
-    this.deltaService.subscribeDataPathsUpdates().subscribe((dataPath: IPathValueData) => {
+    this.delta.subscribeDataPathsUpdates().subscribe((dataPath: IPathValueData) => {
       this.updatePathData(dataPath);
     });
 
-    // Observer of vessel Self URN updates
-    this.deltaService.subscribeSelfUpdates().subscribe(self => {
-      this.setSelfUrn(self);
+    // Observer of vessel Self URN
+    this.delta.subscribeSelfUpdates().subscribe(self => {
+      this.selfurn = self;
     });
   }
 
@@ -157,39 +159,29 @@ export class SignalKService {
     return this.pathRegister[pathIndex].observable.asObservable();
   }
 
-  private setSelfUrn(value: string) {
-    if ((value != "" || value != null) && value != this.selfurn) {
-      console.debug('[SignalK Service] Setting self to: ' + value);
-      this.selfurn = value;
-    }
-  }
-
+  /**
+   * Resonsible for processing all data updates.
+   *
+   * @private
+   * @param {IPathValueData} dataPath
+   * @memberof SignalKService
+   */
   private updatePathData(dataPath: IPathValueData): void {
     // Update connection msg stats
     this.updateStatistics.currentSecond++;
 
-    // Convert our path full URN to "self" short version (better for display purposes) - could be removed for performance
-    let pathSelf: string = dataPath.path.replace(this.selfurn, 'self');
-
     // Convert position data to match Kip's default position format - could be removed for performance
-    if (pathSelf.includes('position.latitude') || pathSelf.includes('position.longitude')) {
+    if (dataPath.path.includes('position.latitude') || dataPath.path.includes('position.longitude')) {
       dataPath.value = this.degToRad(dataPath.value);
     }
 
     // PROCESS DATA
     // See if path key exists
-    let pathIndex = this.paths.findIndex(pathObject => pathObject.path == pathSelf);
+    let pathIndex = this.paths.findIndex(pathObject => pathObject.path == dataPath.path);
 
     // EXIST
     if (pathIndex >= 0) {
-
       // Update data
-      // null source path means, path was first created by metadata. Set source values
-      if (this.paths[pathIndex].defaultSource === null) {
-        this.paths[pathIndex].defaultSource = dataPath.source;
-        this.paths[pathIndex].type = typeof(dataPath.value);
-      }
-
       this.paths[pathIndex].sources[dataPath.source] = {
         timestamp: dataPath.timestamp,
         value: dataPath.value,
@@ -197,8 +189,10 @@ export class SignalKService {
 
     // NOT EXIST
     } else { // doesn't exist. update...
+      let dataType = typeof(dataPath.value);
+
       this.paths.push({
-        path: pathSelf,
+        path: dataPath.path,
         defaultSource: dataPath.source, // default source
         sources: {
           [dataPath.source]: {
@@ -206,14 +200,23 @@ export class SignalKService {
             value: dataPath.value
           }
         },
-        type: typeof(dataPath.value),
+        type: dataType,
       });
+
+      // push new path meta type
+      this.newPath$.next({
+        path: dataPath.path,
+        meta: {
+          type: dataType
+        }
+      });
+
       // get new object index for further processing
-      pathIndex = this.paths.findIndex(pathObject => pathObject.path == pathSelf);
+      pathIndex = this.paths.findIndex(pathObject => pathObject.path == dataPath.path);
     }
 
     // push it to any subscriptions of that data
-    this.pathRegister.filter(pathRegister => pathRegister.path == pathSelf).forEach(
+    this.pathRegister.filter(pathRegister => pathRegister.path == dataPath.path).forEach(
       pathRegister => {
 
         let source: string = null;
@@ -235,81 +238,51 @@ export class SignalKService {
 
     // push it to paths observer
     this.pathsObservale.next(this.paths);
-
-    // update path zones state Observable
-    pathSelf
-    dataPath.value
-
   }
 
     //TODO: do we still need this?
   private setDefaultSource(source: IDefaultSource): void {
-    let pathSelf: string = source.path.replace(this.selfurn, 'self');
-    let pathIndex = this.paths.findIndex(pathObject => pathObject.path == pathSelf);
+    let pathIndex = this.paths.findIndex(pathObject => pathObject.path == source.path);
     if (pathIndex >= 0) {
       this.paths[pathIndex].defaultSource = source.source;
     }
   }
 
   /**
-   * Returns a list of all known SignalK paths of the specified type (sting or numeric)
-   * @param valueType data type: string or numeric
-   * @param selfOnly if true, returns only paths the begins with "self". If false or not specified, everything known
-   * @return array of signalK path string
+   * Returns a list of known paths.
+   *
+   * @param dataType Optionnal. Filter paths on data type (as per typeof: string, number,
+   * boolean, object). If not specified, returns paths of all types.
+   * @param selfOnly Optionnal. If true, filter paths for context of the current vessel
+   * (that begins with "self"). If false or not specified, returns all context (self,
+   * AIS, Atoms and such other sources if present)
+   *
+   * @return array of path string
    */
-  getPathsByType(valueType: string, selfOnly?: boolean): string[] { //TODO(David): See how we should handle string and boolean type value. We should probably return error and not search for it, plus remove from the Units UI.
-    let paths: string[] = [];
-    for (let i = 0; i < this.paths.length;  i++) {
-       if (this.paths[i].type == valueType) {
-         if (selfOnly) {
-          if (this.paths[i].path.startsWith("self")) {
-            paths.push(this.paths[i].path);
-          }
-         } else {
-          paths.push(this.paths[i].path);
-         }
-      }
+  public getPaths(dataType?: string, selfOnly?: boolean): string[] {
+    let pathsType: IPathType[] = [...this.paths]; // copy values - loose reference
+
+    if (selfOnly) {
+      pathsType = pathsType.filter( item => item.path.startsWith("self") );
     }
-    return paths; // copy it....
-  }
 
-  getPathsObservable(): Observable<IPathData[]> {
-    return this.pathsObservale.asObservable();
-  }
-
-  getPathsAndMetaByType(valueType: string, selfOnly?: boolean): ISignalKMeta[] { //TODO(David): See how we should handle string and boolean type value. We should probably return error and not search for it, plus remove from the Units UI.
-    let pathsMeta: ISignalKMeta[] = [];
-    for (let i = 0; i < this.paths.length;  i++) {
-       if (this.paths[i].type == valueType) {
-         if (selfOnly) {
-          if (this.paths[i].path.startsWith("self")) {
-            let p:ISignalKMeta = {
-              path: this.paths[i].path,
-              value: this.paths[i].meta,
-            };
-            pathsMeta.push(p);
-          }
-         } else {
-          let p:ISignalKMeta = {
-            path: this.paths[i].path,
-            value: this.paths[i].meta,
-          };
-          pathsMeta.push(p);
-         }
-      }
+    if (dataType) {
+      pathsType = pathsType.filter( item => item.type == dataType );
     }
-    return pathsMeta; // copy it....
+
+    let stringPaths: string[] = [];
+    pathsType.forEach(item => stringPaths.push(item.path))
+
+    return stringPaths;
   }
 
-  getPathObject(path): IPathData {
+  public getPathObject(path): IPathData {
     let pathIndex = this.paths.findIndex(pathObject => pathObject.path == path);
     if (pathIndex < 0) { return null; }
-    let foundPathObject: IPathData = JSON.parse(JSON.stringify(this.paths[pathIndex])); // so we don't return the object reference and hamper garbage collection/leak memory
-    return foundPathObject;
-
+    return {...this.paths[pathIndex]} // unpack object to loose reference
   }
 
-  getPathUnitType(path: string): string {
+  public getPathUnitType(path: string): string {
     let pathIndex = this.paths.findIndex(pathObject => pathObject.path == path);
     if (pathIndex < 0) { return null; }
     if (('meta' in this.paths[pathIndex]) && ('units' in this.paths[pathIndex].meta)) {
@@ -366,4 +339,12 @@ export class SignalKService {
     console.log("[SignalK Service] Unit type: " + pathUnitType + ", found for path: " + path + "\nbut Kip does not support it.");
     return { default: 'unitless', conversions: this.conversionList };
   }
-}
+
+  public getPathsObservable(): Observable<IPathData[]> {
+    return this.pathsObservale.asObservable();
+  }
+
+  public getNewPathsAsO(): Observable<IMetaPathType> {
+    return this.newPath$.asObservable();
+  }
+ }

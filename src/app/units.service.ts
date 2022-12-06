@@ -37,9 +37,11 @@ export class UnitsService {
   defaultUnitsSub: Subscription;
 
   /**
-   * Definition of available Kip units to be used for conversion.
+   * Definition of available Kip unit group and measures that are available for conversion.
    * Measure property has to match one Unit Conversion Function for proper operation.
-   * Description is human readable property.
+   *
+   * Description field is used in the UI. Care should be taken to offer a short self
+   * explanatory text.
    */
   conversionList: IUnitGroup[] = [
     { group: 'Unitless', units: [

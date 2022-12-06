@@ -169,7 +169,7 @@ export class DialogZones implements OnInit {
     }, this.rangeValidationFunction)
   }, this.zonesValidationFunction);
 
-  public availablePaths: string[] = [];
+  public availablePaths: any[] = [];
   public titleDialog: string = null;
 
   constructor(
@@ -182,7 +182,7 @@ export class DialogZones implements OnInit {
     if (!this.data.item) {
       this.titleDialog = "Add Zones";
       // Remove paths that are already defined so we don't define twice
-      let allPaths = this.signalk.getPathsByType('number').sort();
+      let allPaths = this.signalk.getPaths('number').sort();
       this.data.dataSource.data.forEach( dataSourceItem => {
         let index = allPaths.findIndex(item => item == dataSourceItem.path);
         if (index >= 0) {

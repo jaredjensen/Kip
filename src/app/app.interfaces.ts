@@ -17,6 +17,34 @@ export interface IPathMetadata {
 }
 
 /**
+ * An App data structure that represents a simple data path's
+ * value type. Used to filter types of path.
+ *
+ * Use by: modal-path-selector component and provided by Signal K service
+ *
+ * @memberof app-interfaces
+ */
+export interface IPathType {
+  path: string;
+  type: string;
+}
+
+/**
+ * An App data structure that represents a meta path's
+ * corresponding data path value type.
+ *
+ * Use by: Signal K service and meta service
+ *
+ * @memberof app-interfaces
+ */
+ export interface IMetaPathType {
+  path: string;
+  meta: {
+    type: string;
+  }
+}
+
+/**
  * An App data structure that represents a simple data path's most recent
  * value regardless of the source that updated it.
  *
@@ -79,7 +107,7 @@ export interface IPathZoneDef {
       value: any;
     }
   }
-  //TODO: REMOVE Meta from here
+  //TODO: Delete once cleaned up
   meta?: any;
   type: string;
 }
