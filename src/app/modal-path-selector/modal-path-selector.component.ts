@@ -1,12 +1,10 @@
-import { UnitsService } from './../units.service';
-
 import { Component, Input, OnInit, OnChanges, SimpleChange  } from '@angular/core';
-import { map, startWith } from 'rxjs/operators';
 import { Observable } from 'rxjs'
+import { map, startWith } from 'rxjs/operators';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { SignalKService } from '../signalk.service';
 import { MetaService } from './../meta.service';
-import { IUnitGroup } from '../units.service';
-import { FormGroup, FormControl,Validators } from '@angular/forms';
+import { UnitsService, IUnitGroup } from './../units.service';
 
 
 @Component({
@@ -19,7 +17,6 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
   @Input() formGroup: FormGroup;
   @Input() filterSelfPaths: boolean;
 
-  //TODO: Fix any with proper new Interface for path meta, etc. use to be IPathMetaData
   availablePaths: any[];
   filteredPaths: Observable<any[]> = new Observable;
 
@@ -49,23 +46,23 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.unitList = {};
-    //disable formControl if path is empty - a new, not configured widget...
+    // disable formControl if path is empty - a new, not configured widget...
     if (this.formGroup.value.path == null) {
       this.formGroup.controls['source'].disable();
       if (this.formGroup.value.pathType == "number") {
         this.formGroup.controls['convertUnitTo'].disable();
       }
     }
-    //populate available paths
+    // populate available paths
     this.getPaths(this.filterSelfPaths);
 
-    //populate sources and units for this path (or just the current or default setting if we know nothing about the path)
+    // populate sources and units for this path (or just the current or default setting if we know nothing about the path)
     this.updateSourcesAndUnits();
 
     // autocomplete filtering
     this.filteredPaths = this.formGroup.controls['path'].valueChanges.pipe(startWith(''), map(value => this.filterPaths(value)))
 
-    //subscribe to path formControl changes
+    // subscribe to path formControl changes
     this.formGroup.controls['path'].valueChanges.subscribe(pathValue => {
 
       this.updateSourcesAndUnits();
@@ -73,15 +70,11 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
         if (this.formGroup.controls['path'].valid) {
           this.formGroup.controls['source'].enable();
           this.formGroup.controls['source'].patchValue('default');
-          if (this.formGroup.value.pathType == "number") {
-            this.formGroup.controls['convertUnitTo'].enable();
-            this.formGroup.controls['convertUnitTo'].patchValue(this.unitList.default);
-          }
+          this.formGroup.controls['convertUnitTo']?.enable();
+          this.formGroup.controls['convertUnitTo']?.patchValue(this.unitList.default);
         } else {
           this.formGroup.controls['source'].disable();
-          if (this.formGroup.value.pathType == "number") {
-            this.formGroup.controls['convertUnitTo'].disable();
-          }
+          this.formGroup.controls['convertUnitTo']?.disable();
         }
       } catch (error) {
         console.debug(error);
@@ -91,7 +84,7 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: {[propertyName: string]: SimpleChange}) {
-    //subscribe to filterSelfPaths formControl changes
+    // subscribe to filterSelfPaths formControl changes
     if (changes['filterSelfPaths'] && !changes['filterSelfPaths'].firstChange) {
       this.getPaths(this.filterSelfPaths);
       this.formGroup.controls['path'].patchValue("");
@@ -100,8 +93,8 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
 
   getPaths(isOnlySef: boolean) {
     this.availablePaths = this.meta.getMetaPaths(this.formGroup.value.pathType, isOnlySef).sort((a ,b) => (a.path > b.path) ? 1 : -1);
-    // Need to reset validators when paths change
-    this.formGroup.controls['path'].setValidators([Validators.required]); // this.requirePathMatch(this.availablePaths)]); // allow non-existing paths, maybe new path?
+    // Need to reset validators when paths change - required field & match known path
+    this.formGroup.controls['path'].setValidators([Validators.required, this.requirePathMatch(this.availablePaths)]);
   }
 
   filterPaths( value: string ): any[] {
@@ -126,7 +119,7 @@ export class ModalPathSelectorComponent implements OnInit, OnChanges {
         // the path cannot be found. It's probably coming from default fixed Widget config, or user changed server URL or SignalK server config. We need to disable the fields.
         try {
           this.formGroup.controls['source'].disable();
-          this.formGroup.controls['convertUnitTo'].disable();
+          this.formGroup.controls['convertUnitTo']?.disable();
         } catch (error) {
           console.debug(error);
         }

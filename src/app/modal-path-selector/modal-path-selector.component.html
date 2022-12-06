@@ -5,8 +5,9 @@
       <mat-form-field class="pathField" appearance="outline" floatLabel="always">
         <mat-label>Data Path</mat-label>
         <input type="text" matInput
-          placeholder="Select path (note dropdown limited to 50, type to use autocomplete)"
+          placeholder="Select path... (List limited to 50 items. Type keywords to filter using autocomplete)"
           formControlName="path"
+          spellcheck="false"
           required
           [matAutocomplete]="pathAutoComplete">
         <button mat-button *ngIf="formGroup.value.path" matSuffix mat-icon-button aria-label="Clear" (click)="formGroup.controls['path'].patchValue('')">
@@ -25,10 +26,10 @@
           </mat-option>
         </mat-autocomplete>
         <mat-error *ngIf="formGroup.controls['path'].hasError('required')">
-          Path <strong>required</strong>
+          <strong>Path required</strong>
         </mat-error>
-        <mat-error *ngIf="formGroup.controls['path'].hasError('requireMatch')">
-          Please select an existing path
+        <mat-error *ngIf="formGroup.controls['path'].hasError('requireMatch') && !formGroup.controls['path'].hasError('required')">
+          <strong>Invalid path. Type or select a valid path</strong>
         </mat-error>
       </mat-form-field>
       <mat-form-field class="sourceField" appearance="outline" floatLabel="always">
