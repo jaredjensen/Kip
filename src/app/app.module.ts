@@ -95,6 +95,7 @@ import { DataBrowserRowComponent, DialogUnitSelect } from './data-browser-row/da
 import { ModalUserCredentialComponent } from './modal-user-credential/modal-user-credential.component';
 import { WidgetRaceTimerComponent } from './widget-race-timer/widget-race-timer.component';
 import { WidgetLoginComponent } from './widget-login/widget-login.component';
+import { SettingsMetaComponent } from './settings-meta/settings-meta.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/page/0', pathMatch: 'full' },
@@ -172,6 +173,7 @@ const appNetworkInitializerFn = (appNetInitSvc: AppNetworkInitService) => {
     WidgetRaceTimerComponent,
     ModalUserCredentialComponent,
     WidgetLoginComponent,
+    SettingsMetaComponent,
   ],
   imports: [
     BrowserModule,
