@@ -1,35 +1,51 @@
-<h2 mat-dialog-title> {{titleDialog}} </h2>
+<h2 mat-dialog-title> Edit Zones </h2>
 <form [formGroup]="zoneForm" (ngSubmit)="closeForm()">
   <mat-dialog-content>
     <div class="flex-container">
-
-      <mat-form-field
-      class="large-width"
-      appearance="fill"
-      floatLabel="always">
-        <mat-label>Path</mat-label>
-        <input
-          type="text"
-          matInput
-          name="path"
-          formControlName="path"/>
-      </mat-form-field>
-
-      <mat-form-field
-      class="small-width"
-      appearance="fill"
-      floatLabel="always">
-        <mat-label>Units</mat-label>
-        <input
-          type="text"
-          matInput
-          name="units"
-          formControlName="units"/>
-      </mat-form-field>
-      <!-- Alert -->
-      <div class="zone-group" formGroupName="alert">
-        <div class="zone-group" formGroupName="range">
-          <label class="mat-checkbox">Alert</label>
+      <div class="full-width">
+        <div class="editor">
+          <mat-form-field
+          class="large-width"
+          appearance="fill"
+          floatLabel="always">
+            <mat-label>Path</mat-label>
+            <input
+              type="text"
+              matInput
+              name="path"
+              [ngModel]="path"
+              [ngModelOptions]="{standalone: true}"
+              disabled/>
+          </mat-form-field>
+          <mat-form-field
+          class="small-width"
+          appearance="fill"
+          floatLabel="always">
+            <mat-label>Units</mat-label>
+            <input
+              type="text"
+              matInput
+              name="units"
+              [ngModel]="units"
+              [ngModelOptions]="{standalone: true}"
+              disabled/>
+          </mat-form-field>
+      </div>
+      <div class="full-width" style="text-align: right;">
+        <button mat-button type="button" [matMenuTriggerFor]="addZones" mat-stroked-button color="primary" matTooltip="Add a zone to this path">+ Add Zone</button>
+        <mat-menu #addZones="matMenu" xPosition="before">
+          <button mat-menu-item (click)="addZone('alert')">Alert</button>
+          <button mat-menu-item (click)="addZone('warn')">Warn</button>
+          <button mat-menu-item (click)="addZone('alarm')">Alarm</button>
+          <button mat-menu-item (click)="addZone('emergency')">Emergency</button>
+        </mat-menu>
+      </div>
+    </div>
+      <!-- Zone template -->
+    <ng-container formArrayName="zones">
+      <div class="zone-group" [formGroupName]="i" *ngFor="let zone of zones.controls; index as i">
+        <div class="zone-group">
+          <label class="mat-checkbox"> {{zone.get('state').value}} </label>
           <mat-divider class="zone-title-divider"></mat-divider>
           <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
             <mat-label>From</mat-label>
@@ -50,7 +66,7 @@
               placeholder="End value..."
             />
           </mat-form-field>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('alert.range').errors">
+          <mat-error class="zone-fields mat-form-field" *ngIf="zone.errors?.lowIsUp">
             'From' must be equal or smaller then 'To'
           </mat-error>
         </div>
@@ -65,191 +81,33 @@
               placeholder="Optional message to include when this zone state is reached..."/>
           </mat-form-field>
         </div>
-        <div class="zone-group">
-          <mat-button-toggle-group class="zone-fields"
-            formControlName="method"
-            multiple>
-            <mat-button-toggle value="sound">Sound</mat-button-toggle>
-            <mat-button-toggle value="visual">Visual</mat-button-toggle>
-          </mat-button-toggle-group>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('alert').hasError('noMethod')">
-            At least one notification mode must be selected
-          </mat-error>
-        </div>
+        <button mat-raised-button type="button" color="accent" (click)="deleteZone(i)">
+          Delete
+        </button>
       </div>
-
-      <!-- Warn -->
-
-      <div class="zone-group" formGroupName="warn">
-        <div class="zone-group" formGroupName="range">
-          <label class="mat-checkbox">Warn</label>
-          <mat-divider class="zone-title-divider"></mat-divider>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>From</mat-label>
-            <input
-              type="number"
-              matInput
-              name="lower"
-              formControlName="lower"
-              placeholder="Sart value..."/>
-          </mat-form-field>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>To</mat-label>
-            <input
-              type="number"
-              matInput
-              name="upper"
-              formControlName="upper"
-              placeholder="End value..."
-            />
-          </mat-form-field>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('warn.range').errors">
-            'From' must be equal or smaller then 'To'
-          </mat-error>
-        </div>
-        <div class="zone-group">
-          <mat-form-field class="zone-fields fill-available" appearance="outline" floatLabel="always">
-            <mat-label>Message</mat-label>
-            <input
-              type="text"
-              matInput
-              name="message"
-              formControlName="message"
-              placeholder="Optional message to include when this zone state is reached..."/>
-          </mat-form-field>
-        </div>
-        <div class="zone-group">
-          <mat-button-toggle-group class="zone-fields"
-            formControlName="method"
-            multiple>
-            <mat-button-toggle value="sound">Sound</mat-button-toggle>
-            <mat-button-toggle value="visual">Visual</mat-button-toggle>
-          </mat-button-toggle-group>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('warn').hasError('noMethod')">
-            At least one notification mode must be selected
-          </mat-error>
-        </div>
-      </div>
-
-      <!-- Alarm -->
-
-      <div class="zone-group" formGroupName="alarm">
-        <div class="zone-group" formGroupName="range">
-          <label class="mat-checkbox">Alarm</label>
-          <mat-divider class="zone-title-divider"></mat-divider>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>From</mat-label>
-            <input
-              type="number"
-              matInput
-              name="lower"
-              formControlName="lower"
-              placeholder="Sart value..."/>
-          </mat-form-field>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>To</mat-label>
-            <input
-              type="number"
-              matInput
-              name="upper"
-              formControlName="upper"
-              placeholder="End value..."
-            />
-          </mat-form-field>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('alarm.range').errors">
-            'From' must be equal or smaller then 'To'
-          </mat-error>
-        </div>
-        <div class="zone-group">
-          <mat-form-field class="zone-fields fill-available" appearance="outline" floatLabel="always">
-            <mat-label>Message</mat-label>
-            <input
-              type="text"
-              matInput
-              name="message"
-              formControlName="message"
-              placeholder="Optional message to include when this zone state is reached..."/>
-          </mat-form-field>
-        </div>
-        <div class="zone-group">
-          <mat-button-toggle-group class="zone-fields"
-            formControlName="method"
-            multiple>
-            <mat-button-toggle value="sound">Sound</mat-button-toggle>
-            <mat-button-toggle value="visual">Visual</mat-button-toggle>
-          </mat-button-toggle-group>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('alarm').hasError('noMethod')">
-            At least one notification mode must be selected
-          </mat-error>
-        </div>
-      </div>
-
-      <!-- Emergency -->
-
-      <div class="zone-group" formGroupName="emergency">
-        <div class="zone-group" formGroupName="range">
-          <label class="mat-checkbox">Emergency</label>
-          <mat-divider class="zone-title-divider"></mat-divider>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>From</mat-label>
-            <input
-              type="number"
-              matInput
-              name="lower"
-              formControlName="lower"
-              placeholder="Sart value..."/>
-          </mat-form-field>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>To</mat-label>
-            <input
-              type="number"
-              matInput
-              name="upper"
-              formControlName="upper"
-              placeholder="End value..."
-            />
-          </mat-form-field>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('emergency.range').errors">
-            'From' must be equal or smaller then 'To'
-          </mat-error>
-        </div>
-        <div class="zone-group">
-          <mat-form-field class="zone-fields fill-available" appearance="outline" floatLabel="always">
-            <mat-label>Message</mat-label>
-            <input
-              type="text"
-              matInput
-              name="message"
-              formControlName="message"
-              placeholder="Optional message to include when this zone state is reached..."/>
-          </mat-form-field>
-        </div>
-        <div class="zone-group">
-          <mat-button-toggle-group class="zone-fields"
-            formControlName="method"
-            multiple>
-            <mat-button-toggle value="sound">Sound</mat-button-toggle>
-            <mat-button-toggle value="visual">Visual</mat-button-toggle>
-          </mat-button-toggle-group>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('emergency').hasError('noMethod')">
-            At least one notification mode must be selected
-          </mat-error>
-        </div>
-      </div>
+    </ng-container>
     </div>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <button mat-raised-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button mat-dialog-close color="accent" >Cancel</button>
     <button
       mat-raised-button
-      color="accent"
       type="submit"
-      [disabled]="zoneForm.invalid"
-    >
-      Ok
+      color="accent"
+      [disabled]="zoneForm.invalid">
+      Save
     </button>
-    <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.hasError('zonesInvalid')">
-      Zone are not continuous...
-    </mat-error>
   </mat-dialog-actions>
 </form>
+
+    <!-- <div class="zone-group">
+            <mat-button-toggle-group class="zone-fields"
+              formControlName="method"
+              multiple>
+              <mat-button-toggle value="sound">Sound</mat-button-toggle>
+              <mat-button-toggle value="visual">Visual</mat-button-toggle>
+            </mat-button-toggle-group>
+            <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('alert').hasError('noMethod')">
+              At least one notification mode must be selected
+            </mat-error>
+          </div> -->

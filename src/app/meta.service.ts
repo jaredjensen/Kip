@@ -166,7 +166,7 @@ export class MetaService {
     // check if exists
     let metaIndex = this.metas.findIndex(item => item.path == path);
     if (metaIndex >= 0) {
-      this.metas.splice(metaIndex, 1);
+      this.metas[metaIndex].meta.zones = [];
       this.metas$.next(this.metas);
 
       // check if exists in zone config

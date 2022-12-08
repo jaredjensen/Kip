@@ -1,14 +1,13 @@
+import { IZone } from './../signalk-interfaces';
 import { Subscription } from 'rxjs';
 import { MetaService, IMetaRegistration } from './../meta.service';
 import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, Inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
-import { FormGroup, FormControl, Validators, FormBuilder, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormGroup, FormBuilder, FormArray, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { IPathMetadata, IPathZoneDef } from '../app.interfaces';
-import { SignalKService } from '../signalk.service';
-import { ISignalKMetadata } from '../signalk-interfaces';
+import { IPathZoneDef } from '../app.interfaces';
 
 
 @Component({
@@ -70,7 +69,7 @@ export class SettingsMetaComponent implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit() {
     this.tableData.paginator = this.paginator;
     this.tableData.sort = this.sort;
-    // this.tableData.filter = "";
+    this.tableData.filter = "";
     this.cdRef.detectChanges();
   }
 
@@ -87,45 +86,36 @@ export class SettingsMetaComponent implements OnInit, OnDestroy, AfterViewInit {
       data: metaMode
     });
 
-    dialogRef.afterClosed().subscribe((zone: IPathZoneDef) => {
-      if (zone === undefined || !zone) {
+    dialogRef.afterClosed().subscribe((zones: IPathZoneDef) => {
+      if (zones === undefined || !zones) {
         return; //clicked Cancel, clicked outside the dialog, or navigated await from page using url bar.
       } else {
-        // this.addZones(zone);
+        this.meta.addZones(zones);
       }
     });
   }
 }
 
 
-export const rangeValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const upper: number = control.get('upper').value;
-  const lower: number = control.get('lower').value;
 
-  if (( lower !== undefined && lower !== null) && ( upper !== undefined && upper !== null)) {
-    if (lower >= upper) {
-      return {needUpperLower: true};
+
+// *********** edit zone compoment
+
+// zone form validator function
+export function rangeValidator(): ValidatorFn {
+  return (form: FormGroup) : ValidationErrors | null => {
+    const upper: number = form.get('upper').value;
+    const lower: number = form.get('lower').value;
+
+    if (( lower !== undefined && lower !== null) && ( upper !== undefined && upper !== null)) {
+      if (lower >= upper) {
+        return {lowIsUp: true};
+      }
     }
-  }
-  return null;
-};
-
-export const formValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
-  const upper: number = control.get('range.upper').value;
-  const lower: number = control.get('range.lower').value;
-  const method: string[] = control.get('method').value;
-
-  if (( lower === undefined || lower === null) && ( upper === undefined || upper === null)) {
-      return null;
-  } else if (method.length) {
     return null;
-  } else {
-    return {noMethod: true};
   }
 };
 
-
-// edit zone compoment
 @Component({
   selector: 'dialog-edit-zones',
   templateUrl: './settings-meta-edit-zones.modal.html',
@@ -133,120 +123,112 @@ export const formValidator: ValidatorFn = (control: AbstractControl): Validation
 })
 export class DialogEditZones implements OnInit {
 
-  public zoneForm = this.fb.group({
-    path: [''],
-    units: ['--'],
-    alert: this.fb.group({
-      range: this.fb.group({
-        lower: [null],
-        upper: [null],
-      }, {validators: rangeValidator}),
-      message: [''],
-      method: [[]]
-    }, {validators: formValidator}),
-    warn: this.fb.group({
-      range: this.fb.group({
-        lower: [null],
-        upper: [null],
-      }, {validators: rangeValidator}),
-      message: [''],
-      method: [[]]
-    }, {validators: formValidator}),
-    alarm: this.fb.group({
-      range: this.fb.group({
-        lower: [null],
-        upper: [null],
-      }, {validators: rangeValidator}),
-      message: [''],
-      method: [[]]
-    }, {validators: formValidator}),
-    emergency: this.fb.group({
-      range: this.fb.group({
-        lower: [null],
-        upper: [null],
-      }, {validators: rangeValidator}),
-      message: [''],
-      method: [[]]
-    }, {validators: formValidator}),
-  });
+  public zoneForm: FormGroup;
+  public zonesArray: FormArray;
+  public path: string = null;
+  public units: string = null;
+
+  // public zoneForm = this.fb.group({
+  //   path: [''],
+  //   units: ['--'],
+  //   alert: this.fb.group({
+  //     range: this.fb.group({
+  //       lower: [null],
+  //       upper: [null],
+  //     }, {validators: rangeValidator}),
+  //     message: [''],
+  //     method: [[]]
+  //   }, {validators: formValidator}),
+  //   warn: this.fb.group({
+  //     range: this.fb.group({
+  //       lower: [null],
+  //       upper: [null],
+  //     }, {validators: rangeValidator}),
+  //     message: [''],
+  //     method: [[]]
+  //   }, {validators: formValidator}),
+  //   alarm: this.fb.group({
+  //     range: this.fb.group({
+  //       lower: [null],
+  //       upper: [null],
+  //     }, {validators: rangeValidator}),
+  //     message: [''],
+  //     method: [[]]
+  //   }, {validators: formValidator}),
+  //   emergency: this.fb.group({
+  //     range: this.fb.group({
+  //       lower: [null],
+  //       upper: [null],
+  //     }, {validators: rangeValidator}),
+  //     message: [''],
+  //     method: [[]]
+  //   }, {validators: formValidator}),
+  // });
 
   public availablePaths: any[] = [];
   public titleDialog: string = null;
 
   constructor(
-    private signalk: SignalKService,
     public dialogRef: MatDialogRef<DialogEditZones>,
     public fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public data: IMetaRegistration) {
     }
 
   ngOnInit(): void {
-      this.titleDialog = "Edit Zones";
-      this.zoneForm.get('path').patchValue(this.data.path);
-      this.zoneForm.get('path').disable();
-      this.zoneForm.get('units').patchValue(this.data.meta?.units  || '--');
-      this.zoneForm.get('units').disable();
+    this.path = this.data.path;
+    this.units = this.data.meta?.units  || '--';
 
-      this.zoneForm.get('alert.method').patchValue(this.data.meta?.alertMethod || []);
-      this.zoneForm.get('warn.method').patchValue(this.data.meta?.warnMethod || []);
-      this.zoneForm.get('alarm.method').patchValue(this.data.meta?.alarmMethod || []);
-      this.zoneForm.get('alarm.method').patchValue(this.data.meta?.emergencyMethod || []);
+    // init from controls with Array of zones formGroup
+    this.zoneForm = this.fb.group({
+      zones: this.fb.array([])
+    });
 
-      if (this.data.meta.zones !== undefined) {
-        this.zoneForm.get('alert.range.lower').patchValue(this.data.meta.zones[1]?.lower);
-        this.zoneForm.get('alert.range.upper').patchValue(this.data.meta.zones[1]?.upper);
-        this.zoneForm.get('alert.message').patchValue(this.data.meta.zones[1]?.message);
+    if (this.data.meta.zones !== undefined) {
+      this.data.meta.zones.forEach(zone => this.loadZones(zone));
+    }
+  }
 
-        this.zoneForm.get('warn.range.lower').patchValue(this.data.meta.zones[2]?.lower,);
-        this.zoneForm.get('warn.range.upper').patchValue(this.data.meta.zones[2]?.upper);
-        this.zoneForm.get('warn.message').patchValue(this.data.meta.zones[2]?.message);
-
-        this.zoneForm.get('alarm.range.lower').patchValue(this.data.meta.zones[3]?.lower);
-        this.zoneForm.get('alarm.range.upper').patchValue(this.data.meta.zones[3]?.upper);
-        this.zoneForm.get('alarm.message').patchValue(this.data.meta.zones[3]?.message);
-
-        this.zoneForm.get('emergency.range.lower').patchValue(this.data.meta.zones[4]?.lower);
-        this.zoneForm.get('emergency.range.upper').patchValue(this.data.meta.zones[4]?.upper);
-        this.zoneForm.get('emergency.message').patchValue(this.data.meta.zones[4]?.message);
+  private loadZones(zone: IZone) {
+    this.zones.push(this.fb.group({
+      state: [zone.state],
+      lower: [zone?.lower],
+      upper: [zone?.upper],
+      message: [zone?.message],
+      }, {
+        validators: [rangeValidator()]
       }
+    ));
+
+  }
+
+  public addZone(severity: string) {
+    this.zones.push(this.fb.group({
+      state: [severity],
+      lower: [null],
+      upper: [null],
+      message: [''],
+      }, {
+        validators: [rangeValidator()]
+      }
+    ));
+  }
+
+  public deleteZone(zoneId: number) {
+    this.zones.removeAt(zoneId);
+  }
+
+  // getter to form zones array
+  get zones() {
+    return this.zoneForm.get('zones') as FormArray;
   }
 
   closeForm() {
-    let zones: IPathMetadata = {
-      path: this.data.path,
-      meta: {
-        alertMethod: this.zoneForm.value.alert.method,
-        warnMethod: this.zoneForm.value.warn.method,
-        alarmMethod: this.zoneForm.value.alarm.method,
-        emergencyMethod: this.zoneForm.value.emergency.method,
-        zones: [
-          {
-            state: 'aasas',
-            lower: this.zoneForm.value.alert.range.lower,
-            upper: this.zoneForm.value.alert.range.upper,
-            message: this.zoneForm.value.alert.message
-          },
-          {
-            state: '',
-            lower: this.zoneForm.value.warn.range.lower,
-            upper: this.zoneForm.value.warn.range.upper,
-            message: this.zoneForm.value.warn.message
-          },
-          {
-            state: '',
-            lower: this.zoneForm.value.alarm.range.lower,
-            upper: this.zoneForm.value.alarm.range.upper,
-            message: this.zoneForm.value.alarm.message
-          },
-          {
-            state: '',
-            lower: this.zoneForm.value.emergency.range.lower,
-            upper: this.zoneForm.value.emergency.range.upper,
-            message: this.zoneForm.value.emergency.message
-          }
-        ]
-      }
-    };
+    let zones: IPathZoneDef = {path:'', zonesDef: []};
+
+    zones.path = this.data.path;
+    this.zoneForm.value.zones.forEach((zone: IZone) => {
+      zones.zonesDef.push(zone);
+    });
 
     this.dialogRef.close(zones);
   }
