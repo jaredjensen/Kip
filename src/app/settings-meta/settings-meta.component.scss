@@ -7,7 +7,7 @@
   $background: map-get($theme, background);
   $foreground: map-get($theme, foreground);
 
-  app-settings-zones {
+  app-settings-meta {
     .zone-headers {
       width: 100%;
       display: inline-flex;
@@ -33,80 +33,32 @@
   width: 100%;
 }
 
-.nested-node {
-  padding-left: 40px;
+.fill-available {
+  width: -webkit-fill-available;
 }
 
-.expanded-node {
-  display: none;
+.large-width {
+  width: 88%;
 }
 
-.zone-row {
-  width: 100%;
-  display: inline-flex;
-  gap: 5px;
-  height: 48px;
-  min-height: 48px;
+.small-width {
+  width: 10%;
 }
 
-.zone-header-row {
-  border: 1px solid rgba(white, 0.12);
-  // border-top: 0px;
-  border-left: 0px;
-  border-right: 0px;
-}
-
-.zone-footer-row {
-  border: 1px solid rgba(white, 0.12);
-  // border-top: 0px;
-  border-left: 0px;
-  border-right: 0px;
-  border-bottom: 0px;
-}
-
-.state-node {
-  margin: 0px;
-}
-
-.zone-cell {
-  display: flex;
-  align-items: center;
-}
-
-.zone-cell:last-of-type {
-  padding-right: 24px;
-}
-
-.state {
-  flex: 1 1 15%;
-  justify-content: left;
-}
-
-.data {
-  flex: 1 1 15%;
-  justify-content: center;
-}
-
-.actions {
-  flex: 1 1 55%;
-  justify-content: right;
-}
-
-.message {
-  flex: 1 1 30%;
-  justify-content: left;
-}
-
- .buttons:first-of-type {
+.buttons:first-of-type {
   margin-right: 5px;
 }
-/*
+
+.dont-show {
+  visibility: hidden;
+}
+
 .pathCell {
-  flex: 1 1 40%;
+  flex: 1 1 50%;
 }
 
 .pathHeader {
-  flex: 1 1 40%;
+  flex: 1 1 50%;
 }
 
 .dataHeader {
@@ -126,9 +78,36 @@
 .actionCell {
   flex: 1 1 20%;
   justify-content: end;
-} */
+}
 
-/* @media screen and (max-width: 750px) {
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: flex-start;
+  gap: 10px 10px;
+}
+
+.zone-group {
+  width: 100%;
+}
+
+.zone-title-divider {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.zone-fields {
+  margin-left: 20px;
+}
+
+.zone-fields div.mat-form-field-wrapper {
+  padding-bottom: 0px;
+}
+
+ @media screen and (max-width: 750px) {
   .pathHeader {
     flex: 1 1 30%;
   }
@@ -145,6 +124,11 @@
     content: attr(data-label);
     float: left;
     padding-right: 5px;
+    word-break: keep-all;
+  }
+
+  .pathCell {
+    word-break: break-all !important;
   }
 
   mat-row::after {
@@ -165,4 +149,12 @@
     margin-left: 24px;
   }
 
-} */
+  .large-width {
+    width: 100%;
+  }
+
+  .small-width {
+    width: 100%;
+  }
+
+}

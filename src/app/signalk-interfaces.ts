@@ -189,7 +189,7 @@ export interface ISignalKMetadata {
   upper?: number;
   lower?: number;
   message?: string;
-  state: IZoneState;
+  state: string;
 }
 
 /**

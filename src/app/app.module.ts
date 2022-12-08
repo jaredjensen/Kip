@@ -8,6 +8,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -79,7 +80,6 @@ import { ModalWidgetComponent } from './modal-widget/modal-widget.component';
 import { WidgetSwitchComponent } from './widget-switch/widget-switch.component'
 import { ModalPathSelectorComponent } from './modal-path-selector/modal-path-selector.component';
 import { SettingsUnitsComponent } from './settings-units/settings-units.component';
-import { SettingsZonesComponent, DialogZones } from './settings-zones/settings-zones.component';
 import { WidgetIframeComponent } from './widget-iframe/widget-iframe.component';
 import { SettingsConfigComponent } from './settings-config/settings-config.component';
 import { WidgetGaugeNgLinearComponent } from './widget-gauge-ng-linear/widget-gauge-ng-linear.component';
@@ -95,7 +95,7 @@ import { DataBrowserRowComponent, DialogUnitSelect } from './data-browser-row/da
 import { ModalUserCredentialComponent } from './modal-user-credential/modal-user-credential.component';
 import { WidgetRaceTimerComponent } from './widget-race-timer/widget-race-timer.component';
 import { WidgetLoginComponent } from './widget-login/widget-login.component';
-import { SettingsMetaComponent } from './settings-meta/settings-meta.component';
+import { SettingsMetaComponent, DialogEditZones } from './settings-meta/settings-meta.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: '/page/0', pathMatch: 'full' },
@@ -144,8 +144,6 @@ const appNetworkInitializerFn = (appNetInitSvc: AppNetworkInitService) => {
     SettingsSignalkComponent,
     SettingsConfigComponent,
     SettingsUnitsComponent,
-    SettingsZonesComponent,
-    DialogZones,
     WidgetHistoricalComponent,
     LayoutSplitComponent,
     WidgetWindComponent,
@@ -174,6 +172,7 @@ const appNetworkInitializerFn = (appNetInitSvc: AppNetworkInitService) => {
     ModalUserCredentialComponent,
     WidgetLoginComponent,
     SettingsMetaComponent,
+    DialogEditZones,
   ],
   imports: [
     BrowserModule,
@@ -187,6 +186,7 @@ const appNetworkInitializerFn = (appNetInitSvc: AppNetworkInitService) => {
 
     MatMenuModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatTooltipModule,
     MatDialogModule,
     MatSelectModule,

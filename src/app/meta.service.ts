@@ -1,7 +1,7 @@
 import { SignalKService } from './signalk.service';
 import { SignalKDeltaService } from './signalk-delta.service';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable } from 'rxjs';
 import { IMetaPathType, IPathMetadata, IPathZoneDef } from "./app.interfaces";
 import { ISignalKMetadata } from "./signalk-interfaces";
 import { AppSettingsService } from './app-settings.service';
@@ -12,7 +12,7 @@ export interface IPathZone extends IPathZoneDef {
   dataState?: number;
 }
 
-interface IMetaRegistration {
+export interface IMetaRegistration {
   path: string;
   meta?: ISignalKMetadata;
 }
@@ -83,6 +83,7 @@ export class MetaService {
     } else {
       this.metas[metaIndex].meta.type = newPath.meta.type;
     }
+    this.metas$.next(this.metas);
   }
 
   private setMeta(meta: IPathMetadata): void {
@@ -95,6 +96,7 @@ export class MetaService {
         meta: meta.meta,
       });
     }
+    this.metas$.next(this.metas);
   }
 
   public getMetaPaths(valueType?: string, selfOnly?: boolean): IMetaRegistration[] {
@@ -254,7 +256,23 @@ export class MetaService {
 
   }
 
-  public getMetasObservable(): Observable<Array<IMetaRegistration>> {
-    return this.metas$.asObservable();
+  /**
+   * Return's obervable of Metas.
+   *
+   * @param {boolean} [allMeta] Optionnal. If true, returns all metas, else (default)
+   * return only self metas
+   * @return {*}  {Observable<Array'<IMetaRegistration'>>}
+   * @memberof MetaService
+   */
+  public getMetasObservable(allMeta?: boolean): Observable<Array<IMetaRegistration>> {
+    if (allMeta) {
+      return this.metas$.asObservable();
+    }
+
+    const selfMetas$ = this.metas$.pipe(
+      map( items => items.filter( item => item.path.startsWith("self.")))
+    );
+
+    return selfMetas$;
   }
 }
