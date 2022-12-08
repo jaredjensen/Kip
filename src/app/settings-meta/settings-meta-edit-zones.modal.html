@@ -1,38 +1,40 @@
-<h2 mat-dialog-title> Edit Zones </h2>
 <form [formGroup]="zoneForm" (ngSubmit)="closeForm()">
-  <mat-dialog-content>
-    <div class="flex-container">
-      <div class="full-width">
-        <div class="editor">
-          <mat-form-field
-          class="large-width"
-          appearance="fill"
-          floatLabel="always">
-            <mat-label>Path</mat-label>
-            <input
-              type="text"
-              matInput
-              name="path"
-              [ngModel]="path"
-              [ngModelOptions]="{standalone: true}"
-              disabled/>
-          </mat-form-field>
-          <mat-form-field
-          class="small-width"
-          appearance="fill"
-          floatLabel="always">
-            <mat-label>Units</mat-label>
-            <input
-              type="text"
-              matInput
-              name="units"
-              [ngModel]="units"
-              [ngModelOptions]="{standalone: true}"
-              disabled/>
-          </mat-form-field>
-      </div>
-      <div class="full-width" style="text-align: right;">
-        <button mat-button type="button" [matMenuTriggerFor]="addZones" mat-stroked-button color="primary" matTooltip="Add a zone to this path">+ Add Zone</button>
+
+
+<h2 mat-dialog-title> Zones Properties</h2>
+
+  <div class="zone-flex-container editor">
+    <div class="zone-row editor-row">
+      <mat-form-field
+      class="editor-path-cell"
+      appearance="fill"
+      floatLabel="always">
+        <mat-label>Path</mat-label>
+        <input
+          type="text"
+          matInput
+          name="path"
+          [ngModel]="path"
+          [ngModelOptions]="{standalone: true}"
+          disabled/>
+      </mat-form-field>
+      <mat-form-field
+      class="editor-units-cell"
+      appearance="fill"
+      floatLabel="always">
+        <mat-label>Units</mat-label>
+        <input
+          type="text"
+          matInput
+          name="units"
+          [ngModel]="units"
+          [ngModelOptions]="{standalone: true}"
+          disabled/>
+      </mat-form-field>
+    </div>
+    <div class="zone-row editor-row">
+      <div class="editor-action-cell">
+        <button mat-button type="button" [matMenuTriggerFor]="addZones" mat-stroked-button color="primary" matTooltip="Add a zone to this path">+ Add zone</button>
         <mat-menu #addZones="matMenu" xPosition="before">
           <button mat-menu-item (click)="addZone('alert')">Alert</button>
           <button mat-menu-item (click)="addZone('warn')">Warn</button>
@@ -41,54 +43,70 @@
         </mat-menu>
       </div>
     </div>
+  </div>
+  <mat-divider class="zone-title-divider"></mat-divider>
+
+  <mat-dialog-content>
+    <div class="zone-flex-container">
+
       <!-- Zone template -->
-    <ng-container formArrayName="zones">
-      <div class="zone-group" [formGroupName]="i" *ngFor="let zone of zones.controls; index as i">
-        <div class="zone-group">
-          <label class="mat-checkbox"> {{zone.get('state').value}} </label>
-          <mat-divider class="zone-title-divider"></mat-divider>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>From</mat-label>
-            <input
-              type="number"
-              matInput
-              name="lower"
-              formControlName="lower"
-              placeholder="Sart value..."/>
-          </mat-form-field>
-          <mat-form-field class="zone-fields" appearance="outline" floatLabel="always">
-            <mat-label>To</mat-label>
-            <input
-              type="number"
-              matInput
-              name="upper"
-              formControlName="upper"
-              placeholder="End value..."
-            />
-          </mat-form-field>
-          <mat-error class="zone-fields mat-form-field" *ngIf="zone.errors?.lowIsUp">
-            'From' must be equal or smaller then 'To'
-          </mat-error>
+      <ng-container formArrayName="zones">
+        <div *ngIf="zones.controls.length == 0" class="mat-card-subtitle mat-tab-group" style="width: 100%; text-align: center;">
+          <h3>No zones defined for this path</h3>
+          <p>Use the [+ Add zone] to configure a zone</p>
         </div>
-        <div class="zone-group">
-          <mat-form-field class="zone-fields fill-available" appearance="outline" floatLabel="always">
-            <mat-label>Message</mat-label>
-            <input
-              type="text"
-              matInput
-              name="message"
-              formControlName="message"
-              placeholder="Optional message to include when this zone state is reached..."/>
-          </mat-form-field>
+        <div class="zone-row" [formGroupName]="i" *ngFor="let zone of zones.controls; index as i; let count = count;">
+          <div class="zone-row">
+            <label class="mat-checkbox full-width"> {{zone.get('state').value}} </label>
+            <mat-divider class="zone-title-divider"></mat-divider>
+            <mat-form-field class="zone-fields zone-fields-value" appearance="outline" floatLabel="always">
+              <mat-label>From</mat-label>
+              <input
+                type="number"
+                matInput
+                name="lower"
+                formControlName="lower"
+                placeholder="Sart value..."/>
+            </mat-form-field>
+            <mat-form-field class="zone-fields zone-fields-value" appearance="outline" floatLabel="always">
+              <mat-label>To</mat-label>
+              <input
+                type="number"
+                matInput
+                name="upper"
+                formControlName="upper"
+                placeholder="End value..."
+              />
+            </mat-form-field>
+            <mat-error class="zone-fields mat-form-field" *ngIf="zone.errors?.lowIsUp">
+              'From' must be equal or smaller then 'To'
+            </mat-error>
+          </div>
+          <div class="zone-row">
+            <mat-form-field class="zone-fields fill-available" appearance="outline" floatLabel="always">
+              <mat-label>Message</mat-label>
+              <input
+                type="text"
+                matInput
+                name="message"
+                formControlName="message"
+                placeholder="Optional message to include when this zone state is reached..."/>
+            </mat-form-field>
+          </div>
+          <div class="zone-row">
+            <div class="editor-action-cell">
+              <button mat-button mat-stroked-button type="button" color="warn" (click)="deleteZone(i)">
+                - Delete zone
+              </button>
+            </div>
+          </div>
         </div>
-        <button mat-raised-button type="button" color="accent" (click)="deleteZone(i)">
-          Delete
-        </button>
-      </div>
-    </ng-container>
+      </ng-container>
+
     </div>
   </mat-dialog-content>
   <mat-dialog-actions>
+    <mat-divider class="zone-title-divider"></mat-divider>
     <button mat-raised-button mat-dialog-close color="accent" >Cancel</button>
     <button
       mat-raised-button

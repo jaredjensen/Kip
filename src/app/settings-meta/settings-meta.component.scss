@@ -18,8 +18,10 @@
       border-color: mat.get-color-from-palette($theme, divider);;
     }
   }
+}
 
-
+.mat-dialog-content {
+  max-height: 55vh;
 }
 
 .full-display {
@@ -33,21 +35,8 @@
   width: 100%;
 }
 
-.editor {
-  width: 100%;
-}
-
 .fill-available {
   width: -webkit-fill-available;
-}
-
-.large-width {
-  width: 87%;
-  padding-right: 10px;
-}
-
-.small-width {
-  width: 10%;
 }
 
 .buttons:first-of-type {
@@ -95,21 +84,70 @@
   gap: 10px 10px;
 }
 
-.zone-group {
+.zone-flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: flex-start;
+  gap: 0px 0px;
+}
+
+.editor {
   width: 100%;
+}
+
+.editor-row {
+  gap: 10px;
+}
+
+.editor-path-cell {
+flex: 1 1 80%;
+}
+
+.editor-units-cell {
+  width: 55px;
+}
+
+.editor-action-cell {
+  width: 100%;
+  text-align: right;
+}
+
+.zone-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: space-between;
 }
 
 .zone-title-divider {
   margin-top: 5px;
   margin-bottom: 10px;
+  width: 100%;
 }
 
 .zone-fields {
-  margin-left: 20px;
+  padding-left: 20px;
 }
+
+.zone-fields-value {
+  width: 45%;
+}
+
+
 
 .zone-fields div.mat-form-field-wrapper {
   padding-bottom: 0px;
+}
+
+@media screen and (max-height: 740px) {
+  .mat-dialog-content {
+    max-height: 40vh;
+  }
 }
 
  @media screen and (max-width: 750px) {
@@ -159,6 +197,14 @@
   }
 
   .small-width {
+    width: 100%;
+  }
+
+  .editor-units-cell {
+    width: 100%;
+  }
+
+  .zone-fields-value {
     width: 100%;
   }
 
