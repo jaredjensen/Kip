@@ -29,14 +29,14 @@
         <!-- Unit Column -->
         <ng-container matColumnDef="meta.units">
           <mat-header-cell class="dataHeader" *matHeaderCellDef mat-sort-header>Units</mat-header-cell>
-          <mat-cell class="dat  aCell" *matCellDef="let element" data-label="Units: "> {{element.meta.units}} </mat-cell>
+          <mat-cell class="dataCell" *matCellDef="let element" data-label="Units: "> {{element.meta.units}} </mat-cell>
         </ng-container>
 
         <!-- Action Column -->
         <ng-container matColumnDef="actions">
           <mat-header-cell class="actionHeader" *matHeaderCellDef>  </mat-header-cell>
           <mat-cell class="actionCell" *matCellDef="let element">
-            <button mat-raised-button class="buttons" color="accent" (click)="openMetaDialog()">Properties</button>
+            <button mat-raised-button class="buttons" color="accent" (click)="openMetaDialog(element)">Properties</button>
 
             <!-- <button mat-raised-button color="accent" *ngIf="element.meta.type == 'number'" (click)="openZonesDialog(element)">Zones</button> -->
             <button mat-raised-button color="accent" [class.dont-show]="element.meta.type !== 'number'" (click)="openZonesDialog(element)">Zones</button>

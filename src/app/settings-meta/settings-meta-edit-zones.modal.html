@@ -105,7 +105,7 @@
 
     </div>
   </mat-dialog-content>
-  <mat-dialog-actions>
+  <mat-dialog-actions align="end">
     <mat-divider class="zone-title-divider"></mat-divider>
     <button mat-raised-button mat-dialog-close color="accent" >Cancel</button>
     <button
@@ -117,15 +117,3 @@
     </button>
   </mat-dialog-actions>
 </form>
-
-    <!-- <div class="zone-group">
-            <mat-button-toggle-group class="zone-fields"
-              formControlName="method"
-              multiple>
-              <mat-button-toggle value="sound">Sound</mat-button-toggle>
-              <mat-button-toggle value="visual">Visual</mat-button-toggle>
-            </mat-button-toggle-group>
-            <mat-error class="zone-fields mat-form-field" *ngIf="zoneForm.get('alert').hasError('noMethod')">
-              At least one notification mode must be selected
-            </mat-error>
-          </div> -->

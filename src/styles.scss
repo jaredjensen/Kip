@@ -109,6 +109,7 @@
 @import 'app/widget-simple-linear/widget-simple-linear.component.scss';
 @import 'app/settings-datasets/settings-datasets.component.scss';
 @import 'app/settings-config/settings-config.component.scss';
+@import 'app/settings-meta/settings-meta.component.scss';
 
 @mixin theme-components($theme) {
   @include mat.all-component-themes($theme);
@@ -127,6 +128,7 @@
   @include widget-simple-linear-theme($theme);
   @include theme-settings-data($theme);
   @include theme-settings-config($theme);
+  @include theme-settings-meta($theme);
 }
 
 @include theme-components($defaultTheme-light);

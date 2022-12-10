@@ -52,7 +52,7 @@ export class MetaService {
 
     // Observer of Delta service Metadata updates
     this.delta.subscribeMetadataUpdates().subscribe((deltaMeta: IPathMetadata) => {
-      this.setMeta(deltaMeta);
+      this.processMetaUpte(deltaMeta);
     })
 
     // Observer of signalk service new unknown path updates
@@ -86,7 +86,7 @@ export class MetaService {
     this.metas$.next(this.metas);
   }
 
-  private setMeta(meta: IPathMetadata): void {
+  private processMetaUpte(meta: IPathMetadata): void {
     let metaIndex = this.metas.findIndex(pathObject => pathObject.path == meta.path);
     if (metaIndex >= 0) {
       this.metas[metaIndex].meta = {...this.metas[metaIndex].meta, ...meta.meta};
@@ -121,6 +121,13 @@ export class MetaService {
       }
     }
     return false;
+  }
+
+  public setMeta(meta: IMetaRegistration) {
+    // IMPORTANT: Until SK supports partial JSON updates, great care must be taken
+    // not to update with blank Zones as this method only deals with meta that are not zones!!!
+
+
   }
 
   public getPathUnitType(path: string): string | null {

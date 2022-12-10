@@ -1,6 +1,6 @@
 @use '~@angular/material' as mat;
 
-@mixin theme-settings-data($theme) {
+@mixin theme-settings-meta($theme) {
   $primary: map-get($theme, primary);
   $accent: map-get($theme, accent);
   $warn: map-get($theme, warn);
@@ -15,9 +15,27 @@
       height: 56px;
       min-height: 56px;
       border-bottom: 1px;
-      border-color: mat.get-color-from-palette($theme, divider);;
+      border-color: mat.get-color-from-palette($theme, divider);
     }
   }
+
+  dialog-edit-meta-properties {
+    .group-control-box {
+      border-color: mat.get-color-from-palette($foreground, divider);
+      border-width: 1px;
+      border-style: solid;
+      border-radius: 5px;
+      padding-top: 10px;
+      margin-bottom: 10px;
+      padding-left: 20px;
+      padding-right: 7px;
+    }
+  }
+
+}
+
+.item-flex {
+  flex:auto;
 }
 
 .mat-dialog-content {
@@ -122,6 +140,55 @@ flex: 1 1 80%;
   flex-wrap: wrap;
   align-content: center;
   justify-content: space-between;
+}
+
+.properties-flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: flex-start;
+  gap: 0px 0px;
+}
+
+.properties-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: space-between;
+  gap: 0px 10px;
+}
+
+.propreties-cell-half-size {
+flex: 1 1 45%;
+}
+
+.properties-scale-type {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.properties-scale-values {
+  padding-right: 20px;
+}
+
+.properties-method-row {
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.properties-method-cell {
+  flex: 1 1 30%;
+}
+
+.properties-method-cell-label {
+  flex: 1 1 30%;
+  justify-content: end;
+  display: flex;
 }
 
 .zone-title-divider {

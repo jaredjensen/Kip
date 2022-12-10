@@ -1,0 +1,249 @@
+<form [formGroup]="propertiesForm" (ngSubmit)="closeForm()">
+
+
+<h2 mat-dialog-title>Metadata Properties</h2>
+
+  <div class="properties-flex-container">
+    <div class="properties-row">
+      <mat-form-field
+      class="editor-path-cell"
+      appearance="fill"
+      floatLabel="always">
+        <mat-label>Path</mat-label>
+        <input
+          type="text"
+          matInput
+          name="path"
+          [ngModel]="path"
+          [ngModelOptions]="{standalone: true}"
+          disabled/>
+      </mat-form-field>
+    </div>
+  </div>
+  <mat-divider class="zone-title-divider"></mat-divider>
+
+  <mat-dialog-content>
+    <div class="properties-flex-container">
+
+      <!-- Properties template -->
+
+      <!-- Description fields -->
+      <div class="properties-row">
+        <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
+          <mat-label>Data Description</mat-label>
+          <input
+            type="text"
+            matInput
+            name="description"
+            formControlName="description"
+            placeholder="Enter text value..."/>
+            <mat-icon matSuffix #tooltipdescription="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltipdescription.toggle()"
+              matTooltip="Generic description of the data published by this Signal K path. No unit label (meters, angle, etc.) should be present in the description. Unit description define the raw data format received from Signal K and is defined in the Units metadata field. To change the units format presented in a display, configure the appropriate gauge option. eg. use 'Depth from surface' or 'Voltage measured at or as close as possible to the device'">
+            </mat-icon>
+        </mat-form-field>
+      </div>
+      <div class="properties-row">
+        <mat-form-field class="propreties-cell-half-size" appearance="outline" floatLabel="always">
+          <mat-label>Display Name</mat-label>
+          <input
+            type="text"
+            matInput
+            name="displayName"
+            formControlName="displayName"
+            placeholder="Enter text value..."/>
+            <mat-icon matSuffix #tooltipdisplayName="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltipdisplayName.toggle()"
+              matTooltip="The primary label used by gauges/devices consuming this data path. Note that complex gauges/displays that consume many data paths might define their own name or use a different path's display name. eg. use 'Apperant Wind Angle' or 'Port Tachometer' for port engine revolution sensor">
+            </mat-icon>
+        </mat-form-field>
+        <mat-form-field class="propreties-cell-half-size" appearance="outline" floatLabel="always">
+          <mat-label>Display Short Name</mat-label>
+          <input
+            type="text"
+            matInput
+            name="shortName"
+            formControlName="shortName"
+            placeholder="Enter text value..."/>
+            <mat-icon matSuffix #tooltipshortName="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltipshortName.toggle()"
+              matTooltip="Alternative acronyme used as a display name when space is at a premium. Use few characters (2 - 5, ideally 3). eg. TWS, DPT, STW, SOG are commun accronymes - 'AWA' is for apparent wind angle, or 'Tacho' for a port tachometer">
+            </mat-icon>
+        </mat-form-field>
+      </div>
+      <div class="properties-row">
+        <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
+          <mat-label>Display Long Name</mat-label>
+          <input
+            type="text"
+            matInput
+            name="longName"
+            formControlName="longName"
+            placeholder="Enter text value..."/>
+            <mat-icon matSuffix #tooltiplongName="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltiplongName.toggle()"
+              matTooltip="Alternative full lenght display name. eg. 'Yanmar Port Engine Tachometer' or 'Masthead Sensor Apparent Wind Angle' or 'Port Hull Depth Sensor'">
+            </mat-icon>
+        </mat-form-field>
+
+      </div>
+      <!-- Units and Timeout -->
+      <!-- <div class="properties-row"> -->
+        <!-- *** Not sure we should allow midification for this field. Sources handle this *** -->
+        <!-- <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
+          <mat-label>WANRNING - SHOULD BE a LIST - Units</mat-label>
+          <input
+            type="text"
+            matInput
+            name="units"
+            formControlName="units"
+            placeholder="Enter text value..."/>
+        </mat-form-field> -->
+      <!-- </div> -->
+      <!-- <div class="properties-row">
+        <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
+          <mat-label>Timeout</mat-label>
+          <input
+            type="number"
+            matInput
+            name="timeout"
+            formControlName="timeout"
+            placeholder="Enter numeric value..."/>
+            <mat-icon matSuffix #tooltiptimeout="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltiptimeout.toggle()"
+              matTooltip="The timeout property tells the consumer how long it should consider the value valid. This value is specified in seconds, so for a high speed GPS sensor it may be 0.1 or even 0.05">
+            </mat-icon>
+        </mat-form-field>
+      </div> -->
+
+      <!-- Display Scale -->
+      <div class="properties-row group-control-box" formGroupName="displayScale">
+        <label class="mat-card-subtitle mat-tab-group">Display Scale</label>
+        <button mat-icon-button type="button" (click)="tooltipDisplayScale.toggle()">
+          <i #tooltipDisplayScale="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
+            matTooltip="Display scales are used to unify and simplify simple and complex value interpretations in gauges using indicators (pointer, needle, plot, etc.). With display scales the indicator is positioned using a percentages of deflection within the scale. Scales types defines the function which is applied to values in order to calculate % scale deflection. Most paths will use the 'Linear' scale type which only calculates the value as a % of the range. Other values are better shown on a non linear scale, for example logarithmic for luminosity, signal strength, etc. whilst others may be better on a Squareroot or Power. Start and End are used to represents the extent of the data the path provides (the range of values expected). When type 'Power (P)' is specified an additional property 'Power' must be define. Note that a 'Power' of 0.5 is equivalent to type Squareroot and a 'Power' of 1 is equivalent to ‘Linear’. IMPORTANT: Display scales are optional. They can be applied to supporting widgets">
+          </i>
+        </button>
+        <div class="properties-row properties-scale-type">
+          <mat-form-field class="" appearance="outline" floatLabel="always">
+            <mat-label>Scale Type</mat-label>
+            <mat-select #scaleType formControlName="type">
+              <mat-option value="">Not Set</mat-option>
+              <mat-option value="linear">Linear</mat-option>
+              <mat-option value="logarithmic">Logarithmic</mat-option>
+              <mat-option value="squareroot">Squareroot</mat-option>
+              <mat-option value="power">Power (P)</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="tooltipDisplayScale.toggle()">
+            <i #tooltipDisplayScale="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
+              matTooltip="Formulas for types are - Linear: (V - L)/(U - L), Logarithmic: (log(V) - log(L) / (log(U) - log(L)), Squareroot	(√V - √L) / (√U - √L), Power (P): (Vᴾ - Lᴾ) / (Uᴾ - Lᴾ)">
+            </i>
+          </button>
+        </div>
+        <div class="properties-row properties-scale-values">
+          <mat-form-field class="item-flex" appearance="outline" floatLabel="always">
+            <mat-label>Start</mat-label>
+            <input
+              type="number"
+              matInput
+              name="lower"
+              formControlName="lower"
+              placeholder="Enter numeric value..."/>
+          </mat-form-field>
+          <mat-form-field class="item-flex" appearance="outline" floatLabel="always">
+            <mat-label>End</mat-label>
+            <input
+              type="number"
+              matInput
+              name="upper"
+              formControlName="upper"
+              placeholder="Enter numeric value..."/>
+          </mat-form-field>
+          <mat-form-field class="item-flex" appearance="outline" floatLabel="always" *ngIf="scaleType.value == 'power'">
+            <mat-label>Power</mat-label>
+            <input
+              type="number"
+              matInput
+              name="power"
+              formControlName="power"
+              placeholder="Enter numeric value..."/>
+          </mat-form-field>
+        </div>
+        <mat-error class="zone-fields mat-form-field" *ngIf="propertiesForm.controls.displayScale.errors?.cantBeZero">
+          Type Logarithmic scale 'Start' and 'End' fields values cannot be zero
+        </mat-error>
+      </div>
+
+      <!-- Alert Methodes -->
+      <div class="properties-row group-control-box">
+        <label class="mat-card-subtitle mat-tab-group">Notification Method</label>
+        <button mat-icon-button type="button" (click)="tooltipMethod.toggle()">
+          <i #tooltipMethod="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
+            matTooltip="IMPORTANT: Changing notification methods will change how Signal K send notification to all consumers, not just Kip. To configure how Kip responds to notifications, change the Notification configuration in the Kip settings. With that said, notification methods indicates how notifications to an abnormal data condition should be presented to end users. Options include visual and/or sound notifications. To define abnormal data conditions see Zones configuration. Notification Methods and Zones work and-in-hand">
+          </i>
+        </button>
+
+        <div class="properties-row properties-method-row">
+          <div class="properties-method-cell-label">
+            <label class="mat-card-subtitle mat-tab-group">Alert Severity</label>
+          </div>
+          <div class="properties-method-cell">
+            <mat-button-toggle-group
+              formControlName="alertMethod"
+              multiple>
+              <mat-button-toggle value="sound">Sound</mat-button-toggle>
+              <mat-button-toggle value="visual">Visual</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+        </div>
+        <div class="properties-row properties-method-row">
+          <div class="properties-method-cell-label">
+            <label class="mat-card-subtitle mat-tab-group">Warn Severity</label>
+          </div>
+          <div class="properties-method-cell">
+            <mat-button-toggle-group
+              formControlName="warnMethod"
+              multiple>
+              <mat-button-toggle value="sound">Sound</mat-button-toggle>
+              <mat-button-toggle value="visual">Visual</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+        </div>
+        <div class="properties-row properties-method-row">
+          <div class="properties-method-cell-label">
+            <label class="mat-card-subtitle mat-tab-group">Alarm Severity</label>
+          </div>
+          <div class="properties-method-cell">
+            <mat-button-toggle-group
+              formControlName="alarmMethod"
+              multiple>
+              <mat-button-toggle value="sound">Sound</mat-button-toggle>
+              <mat-button-toggle value="visual">Visual</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+        </div>
+        <div class="properties-row properties-method-row">
+          <div class="properties-method-cell-label">
+            <label class="mat-card-subtitle mat-tab-group">Emergency Severity</label>
+          </div>
+          <div class="properties-method-cell">
+            <mat-button-toggle-group
+              formControlName="emergencyMethod"
+              multiple>
+              <mat-button-toggle value="sound">Sound</mat-button-toggle>
+              <mat-button-toggle value="visual">Visual</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <mat-divider class="zone-title-divider"></mat-divider>
+    <button mat-raised-button mat-dialog-close color="accent" >Cancel</button>
+    <button
+      mat-raised-button
+      type="submit"
+      color="accent"
+      [disabled]="propertiesForm.invalid">
+      Save
+    </button>
+  </mat-dialog-actions>
+</form>
