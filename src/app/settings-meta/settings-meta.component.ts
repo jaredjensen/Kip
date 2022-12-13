@@ -165,7 +165,9 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
     }
 
   ngOnInit(): void {
-    this.data = this.metaData;
+    // Deep copy to loose obj references
+    this.data = JSON.parse(JSON.stringify(this.metaData));
+    //  flush zones. Easier to track for downstream processing
     this.data.meta.zones = undefined;
 
     this.selectSub = this.propertiesForm.get('displayScale.type').valueChanges.subscribe(value => {
@@ -220,18 +222,19 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
   closeForm() {
     let meta: IMetaRegistration;
     // Put back original value we don't want to change but must be included so we don't overwrite sk with blank value
-    // expand object to loose reference
-    meta = {...this.data};
+    meta = this.data;
     // Push form
     meta.meta.description = this.propertiesForm.value.description;
     meta.meta.displayName = this.propertiesForm.value.displayName;
     meta.meta.shortName = this.propertiesForm.value.shortName;
     meta.meta.longName = this.propertiesForm.value.longName;
-    meta.meta.displayScale = {
-      type: this.propertiesForm.value.displayScale.type,
-      lower: this.propertiesForm.value.displayScale.lower,
-      upper: this.propertiesForm.value.displayScale.upper,
-      power: this.propertiesForm.value.displayScale.power,
+    if (this.propertiesForm.value.displayScale.type !== '') {
+      meta.meta.displayScale = {
+        type: this.propertiesForm.value.displayScale.type,
+        lower: this.propertiesForm.value.displayScale.lower,
+        upper: this.propertiesForm.value.displayScale.upper,
+        power: this.propertiesForm.value.displayScale.power,
+      }
     }
     meta.meta.alertMethod = this.propertiesForm.value.alertMethod;
     meta.meta.warnMethod = this.propertiesForm.value.warnMethod;
@@ -273,6 +276,7 @@ export class DialogEditZones implements OnInit {
 
   public zoneForm: FormGroup;
   public zonesArray: FormArray;
+  public data: IMetaRegistration;
   public path: string = null;
   public units: string = null;
   public availablePaths: any[] = [];
@@ -280,10 +284,13 @@ export class DialogEditZones implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<DialogEditZones>,
     public fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) public data: IMetaRegistration) {
+    @Inject(MAT_DIALOG_DATA) public zoneData: IMetaRegistration) {
     }
 
   ngOnInit(): void {
+    // Loose obj reference
+    this.data = {...this.zoneData};
+
     this.path = this.data.path;
     this.units = this.data.meta?.units  || '--';
 
