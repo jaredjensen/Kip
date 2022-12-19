@@ -167,8 +167,9 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Deep copy to loose obj references
     this.data = JSON.parse(JSON.stringify(this.metaData));
-    //  flush zones. Easier to track for downstream processing
+    // Flush/mark as undefined unwanted obj keys (zones, etc.). Easier to track for downstream processing
     this.data.meta.zones = undefined;
+    this.data.meta.type = undefined;
 
     this.selectSub = this.propertiesForm.get('displayScale.type').valueChanges.subscribe(value => {
       this.setDisplayScaleControls(value);
@@ -179,7 +180,7 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
     this.propertiesForm.patchValue({shortName: this.data.meta?.shortName});
     this.propertiesForm.patchValue({longName: this.data.meta?.longName});
     this.propertiesForm.patchValue({description: this.data.meta?.description});
-    this.propertiesForm.patchValue({units: this.data.meta?.units});
+    this.propertiesForm.patchValue({units: this.data.meta?.units || ''});
     this.propertiesForm.patchValue({timeout: this.data.meta?.timeout});
 
     this.propertiesForm.controls.displayScale.patchValue({lower: this.data.meta?.displayScale?.lower});
@@ -223,11 +224,21 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
     let meta: IMetaRegistration;
     // Put back original value we don't want to change but must be included so we don't overwrite sk with blank value
     meta = this.data;
-    // Push form
+    // Push form values
     meta.meta.description = this.propertiesForm.value.description;
-    meta.meta.displayName = this.propertiesForm.value.displayName;
+    if (this.propertiesForm.value.displayName === '') {
+      meta.meta.displayName = undefined;
+    } else {
+      meta.meta.displayName = this.propertiesForm.value.displayName;
+    }
     meta.meta.shortName = this.propertiesForm.value.shortName;
     meta.meta.longName = this.propertiesForm.value.longName;
+    meta.meta.units = this.propertiesForm.value.units;
+    if (this.propertiesForm.value.timeout == null) {
+      meta.meta.timeout = undefined;
+    } else {
+      meta.meta.timeout = this.propertiesForm.value.timeout;
+    }
     if (this.propertiesForm.value.displayScale.type !== '') {
       meta.meta.displayScale = {
         type: this.propertiesForm.value.displayScale.type,
@@ -235,6 +246,8 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
         upper: this.propertiesForm.value.displayScale.upper,
         power: this.propertiesForm.value.displayScale.power,
       }
+    } else {
+      meta.meta.displayScale = undefined;
     }
     meta.meta.alertMethod = this.propertiesForm.value.alertMethod;
     meta.meta.warnMethod = this.propertiesForm.value.warnMethod;

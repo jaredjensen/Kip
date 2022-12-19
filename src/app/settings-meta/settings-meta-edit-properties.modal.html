@@ -27,21 +27,6 @@
 
       <!-- Properties template -->
 
-      <!-- Description fields -->
-      <div class="properties-row">
-        <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
-          <mat-label>Data Description</mat-label>
-          <input
-            type="text"
-            matInput
-            name="description"
-            formControlName="description"
-            placeholder="Enter text value..."/>
-            <mat-icon matSuffix #tooltipdescription="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltipdescription.toggle()"
-              matTooltip="Generic description of the data published by this Signal K path. No unit label (meters, angle, etc.) should be present in the description. Unit description define the raw data format received from Signal K and is defined in the Units metadata field. To change the units format presented in a display, configure the appropriate gauge option. eg. use 'Depth from surface' or 'Voltage measured at or as close as possible to the device'">
-            </mat-icon>
-        </mat-form-field>
-      </div>
       <div class="properties-row">
         <mat-form-field class="propreties-cell-half-size" appearance="outline" floatLabel="always">
           <mat-label>Display Name</mat-label>
@@ -83,34 +68,6 @@
         </mat-form-field>
 
       </div>
-      <!-- Units and Timeout -->
-      <!-- <div class="properties-row"> -->
-        <!-- *** Not sure we should allow midification for this field. Sources handle this *** -->
-        <!-- <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
-          <mat-label>WANRNING - SHOULD BE a LIST - Units</mat-label>
-          <input
-            type="text"
-            matInput
-            name="units"
-            formControlName="units"
-            placeholder="Enter text value..."/>
-        </mat-form-field> -->
-      <!-- </div> -->
-      <!-- <div class="properties-row">
-        <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
-          <mat-label>Timeout</mat-label>
-          <input
-            type="number"
-            matInput
-            name="timeout"
-            formControlName="timeout"
-            placeholder="Enter numeric value..."/>
-            <mat-icon matSuffix #tooltiptimeout="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltiptimeout.toggle()"
-              matTooltip="The timeout property tells the consumer how long it should consider the value valid. This value is specified in seconds, so for a high speed GPS sensor it may be 0.1 or even 0.05">
-            </mat-icon>
-        </mat-form-field>
-      </div> -->
-
       <!-- Display Scale -->
       <div class="properties-row group-control-box" formGroupName="displayScale">
         <label class="mat-card-subtitle mat-tab-group">Display Scale</label>
@@ -175,7 +132,7 @@
         <label class="mat-card-subtitle mat-tab-group">Notification Method</label>
         <button mat-icon-button type="button" (click)="tooltipMethod.toggle()">
           <i #tooltipMethod="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
-            matTooltip="IMPORTANT: Changing notification methods will change how Signal K send notification to all consumers, not just Kip. To configure how Kip responds to notifications, change the Notification configuration in the Kip settings. With that said, notification methods indicates how notifications to an abnormal data condition should be presented to end users. Options include visual and/or sound notifications. To define abnormal data conditions see Zones configuration. Notification Methods and Zones work and-in-hand">
+            matTooltip="IMPORTANT: Changing notification methods will change how Signal K send notification to all consumers, not just Kip. To configure how Kip responds to notifications, change the Notification configuration in the Kip settings. With that said, notification methods indicates how notifications to an abnormal data condition should be presented to end users. Options include visual and/or sound notifications. To define abnormal data conditions see Zones configuration. Notification Methods and Zones work hand-in-hand">
           </i>
         </button>
 
@@ -232,6 +189,66 @@
           </div>
         </div>
       </div>
+      <!-- Units and Timeout -->
+
+      <!-- Description fields -->
+      <div class="properties-row">
+        <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
+          <mat-label>Data Description</mat-label>
+          <input
+            type="text"
+            matInput
+            name="description"
+            formControlName="description"
+            placeholder="Enter text value..."/>
+            <mat-icon matSuffix #tooltipdescription="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltipdescription.toggle()"
+              matTooltip="Generic description of the data published by this Signal K path. No unit label (meters, angle, etc.) should be present in the description. Unit description define the raw data format received from Signal K and is defined in the Units metadata field. To change the units format presented in a display, configure the appropriate gauge option. eg. use 'Depth from surface' or 'Voltage measured at or as close as possible to the device'">
+            </mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div class="properties-row">
+        <!-- <mat-form-field class="propreties-cell-half-size" appearance="outline" floatLabel="always">
+          <mat-label>WANRNING - SHOULD BE a LIST -Data Units</mat-label>
+          <input
+            type="text"
+            matInput
+            name="units"
+            formControlName="units"
+            placeholder="Enter text value..."/>
+        </mat-form-field> -->
+
+        <mat-form-field class="propreties-cell-half-size" appearance="outline" floatLabel="always">
+          <mat-label>Data Timeout</mat-label>
+          <input
+            type="number"
+            matInput
+            name="timeout"
+            formControlName="timeout"
+            placeholder="Enter numeric value in seconds..."/>
+            <mat-icon matSuffix #tooltiptimeout="matTooltip" color="primary" class="fa-solid fa-circle-info fa-2x" matTooltipPosition="left" (click)="tooltiptimeout.toggle()"
+              matTooltip="OPTIONAL: Tells the consumer how long (in seconds) it should consider the value valid. It is up to the consumer to decide how to handle timed out values. For a high speed GPS sensor timeout may be 0.1 or even 0.05. NOTE: Timeout has no effect on Kip (for now) but will affect all other consumers of this path">
+            </mat-icon>
+        </mat-form-field>
+        <div class="propreties-cell-half-size" *ngIf="metaData.meta.type === 'number'">
+          <mat-form-field appearance="outline" floatLabel="always">
+            <mat-label>Data Units</mat-label>
+            <mat-select #dataUnits formControlName="units">
+              <mat-option value="">Undefined</mat-option>
+              <mat-option value="V">Volts</mat-option>
+              <mat-option value="logarithmic">Logarithmic adsf ads fasfd</mat-option>
+              <mat-option value="squareroot">Squareroot</mat-option>
+              <mat-option value="power">Power (P)</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="tooltipdataUnits.toggle()">
+            <i #tooltipdataUnits="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
+              matTooltip="The type of unit this path value provides. IMPORTANT: Changing the units type does not change/convert the underlying value being published by Signal K. Units only serve to describe the data. To convert path value displayed in a Widget, use the Widget's 'Display Format' configuration option in the corresponding widget's 'Widget Options' Path tab. To change Kip's default value types app wide, use the Configuration Units settings tab">
+            </i>
+          </button>
+        </div>
+      </div>
+
     </div>
   </mat-dialog-content>
 

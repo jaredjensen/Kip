@@ -1,7 +1,8 @@
+import { SignalkRequestsService } from './signalk-requests.service';
 import { SignalKService } from './signalk.service';
 import { SignalKDeltaService } from './signalk-delta.service';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, map, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { IMetaPathType, IPathMetadata, IPathZoneDef } from "./app.interfaces";
 import { ISignalKMetadata } from "./signalk-interfaces";
 import { AppSettingsService } from './app-settings.service';
@@ -34,7 +35,8 @@ export class MetaService {
   constructor(
     private settings: AppSettingsService,
     private delta: SignalKDeltaService,
-    private signalk: SignalKService
+    private signalk: SignalKService,
+    private Requests: SignalkRequestsService
   ) {
     // Load zones from config
     const zonesConfig = this.settings.getZones();
@@ -88,6 +90,14 @@ export class MetaService {
 
   private processMetaUpte(meta: IPathMetadata): void {
     let metaIndex = this.metas.findIndex(pathObject => pathObject.path == meta.path);
+
+    // TODO: Remove test logging
+    // if (meta.path == 'self.electrical.batteries.1.voltage') {
+    //   console.log(meta);
+    // }
+
+
+
     if (metaIndex >= 0) {
       this.metas[metaIndex].meta = {...this.metas[metaIndex].meta, ...meta.meta};
     } else { // not in our list yet. We add a new path
@@ -123,9 +133,25 @@ export class MetaService {
     return false;
   }
 
-  public setMeta(meta: IMetaRegistration) {
-    // IMPORTANT: Until SK supports partial JSON updates, great care must be taken
-    // not to update with blank Zones as this method only deals with meta that are not zones!!!
+  public setMeta(metaUpdate: IMetaRegistration) {
+    // IMPORTANT: Until SK supports Zones definition using deltas and partial JSON updates,
+    // great care must be taken not to update with blank Zones as this method only deals
+    // with meta that are not zones. See addZones() for this purpose.
+
+    // pad meta path
+    let metaPath = metaUpdate.path + ".meta.";
+
+    // parse keys that are not undefined
+    Object.keys(metaUpdate.meta).forEach(key => {
+      if (metaUpdate.meta[key] !== undefined) {
+        // console.log(key + " : " + metaUpdate.meta[key]);
+        this.Requests.putRequest(metaPath + key, metaUpdate.meta[key]);
+      } else {
+        this.Requests.putRequest(metaPath + key, undefined);
+      }
+    });
+
+    // this.Requests.putRequest(metaPath, metaUpdate.meta.displayName);
 
 
   }

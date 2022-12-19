@@ -31,8 +31,6 @@ export interface IUnitDefaults {
 
 export class UnitsService {
 
-
-
   defaultUnits: IUnitDefaults;
   defaultUnitsSub: Subscription;
 
@@ -107,7 +105,9 @@ export class UnitsService {
       { measure: 'hPa', description: "hPa" },
       { measure: 'mbar', description: "mbar" },
     ] },
-    { group: 'Density', units: [ { measure: 'kg/m3', description: "Air density - kg/cubic meter"} ] },
+    { group: 'Density', units: [
+      { measure: 'kg/m3', description: "Air density - kg/cubic meter"}
+    ] },
     { group: 'Time', units: [
       { measure: 's', description: "Seconds (default)" },
       { measure: 'Minutes', description: "Minutes" },
@@ -157,37 +157,41 @@ export class UnitsService {
 
 
   unitConversionFunctions = {
+    // see https://github.com/SignalK/specification/blob/master/schemas/definitions.json
     'unitless': function(v) { return v; },
 //  speed
     'knots': Qty.swiftConverter("m/s", "kn"),
     'kph': Qty.swiftConverter("m/s", "kph"),
     'm/s': function(v) { return v; },
     'mph': Qty.swiftConverter("m/s", "mph"),
+// Acceleration
+    //TODO: Missing m/s2 "Acceleration in meters per second squared"
 // volume
     "liter": Qty.swiftConverter('m^3', 'liter'),
     "gallon": Qty.swiftConverter('m^3', 'gallon'),
     "m3": function(v) { return v; },
-//  flow
+// flow
+    //TODO: Missing base as kg/s and converstion also
     'm3/s': function(v) { return v; },
     'l/min': Qty.swiftConverter("m^3/s", "liter/minute"),
     'l/h': Qty.swiftConverter("m^3/s", "liter/hour"),
     'g/min': Qty.swiftConverter("m^3/s", "gallon/minute"),
     'g/h': Qty.swiftConverter("m^3/s", "gallon/hour"),
-//  temp
+// temp
     "K": function(v) { return v; },
     "celsius": Qty.swiftConverter("tempK", "tempC"),
     "fahrenheit": Qty.swiftConverter("tempK", "tempF"),
-//  length
+// length
     "m": function(v) { return v; },
     "fathom": Qty.swiftConverter('m', 'fathom'),
     "feet": Qty.swiftConverter('m', 'foot'),
     "km": Qty.swiftConverter('m', 'km'),
     "nm": Qty.swiftConverter('m', 'nmi'),
     "mi": Qty.swiftConverter('m', 'mi'),
-//  Potential
+// Potential
     "V": function(v) { return v; },
     "mV": function(v) { return v*1000; },
-//  Current
+// Current
     "A": function(v) { return v; },
     "mA": function(v) { return v*1000; },
 // charge
@@ -199,7 +203,13 @@ export class UnitsService {
 // Energy
     "J": function(v) { return v; },
     "kWh": Qty.swiftConverter('J', 'kWh'),
-//  pressure
+// Luminescence
+    //TODO: missing Lux "Light Intensity in lux"
+// Resistance
+    //TODO: Missing ohm "Electrical resistance in ohm"
+// Magnetic field
+    //TODO: Missing T "Magnetic field strength in tesla"
+// pressure
     "Pa": function(v) { return v; },
     "bar": Qty.swiftConverter('Pa', 'bar'),
     "psi": Qty.swiftConverter('Pa', 'psi'),
@@ -207,9 +217,13 @@ export class UnitsService {
     "inHg": Qty.swiftConverter('Pa', 'inHg'),
     "hPa": Qty.swiftConverter('Pa', 'hPa'),
     "mbar": Qty.swiftConverter('Pa', 'millibar'),
+// pressure rate
+    //TODO: Missing Pa/s "Pressure change rate in pascal per second"
+// Viscosity
+    //TODO: missing pa.s "Viscosity in pascal seconds"
 // Density - Description: Current outside air density
     "kg/m3": function(v) { return v; },
-//  Time
+// Time
     "s": function(v) { return v; },
     "Minutes": Qty.swiftConverter('s', 'minutes'),
     "Hours": Qty.swiftConverter('s', 'hours'),
@@ -223,21 +237,28 @@ export class UnitsService {
       var s = Math.floor(v % 3600 % 60);
       return ('0' + h).slice(-2) + ":" + ('0' + m).slice(-2) + ":" + ('0' + s).slice(-2);
     },
-//  angularVelocity
+// angularVelocity
     "rad/s": function(v) { return v; },
     "deg/s": Qty.swiftConverter('rad/s', 'deg/s'),
     "deg/min": Qty.swiftConverter('rad/s', 'deg/min'),
-//  frequency
+// angular acceleration
+    //TODO: missing rad/s2 "Angular acceleration in radians per second squared"
+// frequency
     "rpm": function(v) { return v*60; },
     "Hz": function(v) { return v; },
     "KHz": function(v) { return v/1000; },
     "MHz": function(v) { return v/1000000; },
     "GHz": function(v) { return v/1000000000; },
-//  angle
+// angle
+    //TODO: missing base as deg
     "rad": function(v) { return v; },
     "deg": Qty.swiftConverter('rad', 'deg'),
     "grad": Qty.swiftConverter('rad', 'grad'),
-//   ratio
+// Torque
+    //TODO: missing Nm "Torque in Newton meter"
+// Force
+    //TODO: missing N "Force in newton"
+// ratio
     'percent': function(v) { return v * 100 },
     'percentraw': function(v) { return v },
     'ratio': function(v) { return v },
