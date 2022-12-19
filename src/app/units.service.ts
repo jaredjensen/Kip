@@ -41,6 +41,7 @@ export class UnitsService {
    * Description field is used in the UI. Care should be taken to offer a short self
    * explanatory text.
    */
+  // TODO: Look at using js-quantities 'Well-knonw kinds' and 'Available Units of a kind' instead of recreating a system https://github.com/gentooboontoo/js-quantities
   conversionList: IUnitGroup[] = [
     { group: 'Unitless', units: [
       { measure: 'unitless', description: "As-Is numeric value" }
@@ -50,6 +51,17 @@ export class UnitsService {
       { measure: 'kph', description: "kph - Kilometers per hour"},
       { measure: 'mph', description: "mph - Miles per hour"},
       { measure: 'm/s', description: "m/s - Meters per second (default)"}
+    ] },
+    { group: 'Acceleration', units: [
+      { measure: 'm/s2', description: "Meters per second squared (default)"},
+      { measure: 'gee', description: "g-force as a result of acceleration or gravity"}
+    ] },
+    { group: 'Force', units: [
+      { measure: 'N', description: "Newton (default)"},
+      { measure: 'lbf', description: "Pound force"}
+    ] },
+    { group: 'Torque', units: [
+      { measure: 'Nm', description: "Newton meter (default)"}
     ] },
     { group: 'Flow', units: [
       { measure: 'm3/s', description: "Cubic meters per second (default)"},
@@ -96,6 +108,12 @@ export class UnitsService {
       { measure: 'J', description: "Joules"},
       { measure: 'kWh', description: "Kilo-Watt*Hours"},
     ] },
+    { group: 'Resistance', units: [
+      { measure: 'ohm', description: "Ohm \u2126 electrical resistance (default)"}
+    ] },
+    { group: 'Magnetism', units: [
+      { measure: 'T', description: "Tesla field intensity (default)"}
+    ] },
     { group: 'Pressure', units: [
       { measure: 'Pa', description: "Pascal (default)" },
       { measure: 'bar', description: "Bars" },
@@ -105,8 +123,17 @@ export class UnitsService {
       { measure: 'hPa', description: "hPa" },
       { measure: 'mbar', description: "mbar" },
     ] },
+    { group: 'Pressure Rate', units: [
+      { measure: 'Pa/s', description: "Pascal per second (default)" }
+    ] },
     { group: 'Density', units: [
       { measure: 'kg/m3', description: "Air density - kg/cubic meter"}
+    ] },
+    { group: 'Viscosity', units: [
+      { measure: 'pa.s', description: "Pascal per seconds (default)"}
+    ] },
+    { group: 'Illuminance', units: [
+      { measure: 'lux', description: "Lumen per square meter (default)"}
     ] },
     { group: 'Time', units: [
       { measure: 's', description: "Seconds (default)" },
@@ -114,6 +141,9 @@ export class UnitsService {
       { measure: 'Hours', description: "Hours" },
       { measure: 'Days', description: "Days" },
       { measure: 'HH:MM:SS', description: "Hours:Minute:seconds"}
+    ] },
+    { group: 'Angular Acceleration', units: [
+      { measure: 'rad/s2', description: "Radians per second squared (default)" }
     ] },
     { group: 'Angular Velocity', units: [
       { measure: 'rad/s', description: "Radians per second" },
@@ -159,19 +189,20 @@ export class UnitsService {
   unitConversionFunctions = {
     // see https://github.com/SignalK/specification/blob/master/schemas/definitions.json
     'unitless': function(v) { return v; },
-//  speed
+// Speed
     'knots': Qty.swiftConverter("m/s", "kn"),
     'kph': Qty.swiftConverter("m/s", "kph"),
     'm/s': function(v) { return v; },
     'mph': Qty.swiftConverter("m/s", "mph"),
 // Acceleration
-    //TODO: Missing m/s2 "Acceleration in meters per second squared"
-// volume
+    "m/s2": function(v) { return v; },
+    "gee": Qty.swiftConverter('m/s^2', 'gee'),
+// Volume
     "liter": Qty.swiftConverter('m^3', 'liter'),
     "gallon": Qty.swiftConverter('m^3', 'gallon'),
     "m3": function(v) { return v; },
-// flow
-    //TODO: Missing base as kg/s and converstion also
+// Flow
+    //TODO: Missing base as kg/s. Is it a problem to have 2 base measure in sk spec?
     'm3/s': function(v) { return v; },
     'l/min': Qty.swiftConverter("m^3/s", "liter/minute"),
     'l/h': Qty.swiftConverter("m^3/s", "liter/hour"),
@@ -203,12 +234,12 @@ export class UnitsService {
 // Energy
     "J": function(v) { return v; },
     "kWh": Qty.swiftConverter('J', 'kWh'),
-// Luminescence
-    //TODO: missing Lux "Light Intensity in lux"
+// Luminosity
+    "lux": function(v) { return v; },
 // Resistance
-    //TODO: Missing ohm "Electrical resistance in ohm"
+    "ohm": function(v) { return v; },
 // Magnetic field
-    //TODO: Missing T "Magnetic field strength in tesla"
+    "T": function(v) { return v; },
 // pressure
     "Pa": function(v) { return v; },
     "bar": Qty.swiftConverter('Pa', 'bar'),
@@ -218,9 +249,9 @@ export class UnitsService {
     "hPa": Qty.swiftConverter('Pa', 'hPa'),
     "mbar": Qty.swiftConverter('Pa', 'millibar'),
 // pressure rate
-    //TODO: Missing Pa/s "Pressure change rate in pascal per second"
+    "Pa/s": function(v) { return v; },
 // Viscosity
-    //TODO: missing pa.s "Viscosity in pascal seconds"
+    "pa.s": function(v) { return v; },
 // Density - Description: Current outside air density
     "kg/m3": function(v) { return v; },
 // Time
@@ -242,7 +273,7 @@ export class UnitsService {
     "deg/s": Qty.swiftConverter('rad/s', 'deg/s'),
     "deg/min": Qty.swiftConverter('rad/s', 'deg/min'),
 // angular acceleration
-    //TODO: missing rad/s2 "Angular acceleration in radians per second squared"
+    "rad/s2": function(v) { return v; },
 // frequency
     "rpm": function(v) { return v*60; },
     "Hz": function(v) { return v; },
@@ -250,14 +281,15 @@ export class UnitsService {
     "MHz": function(v) { return v/1000000; },
     "GHz": function(v) { return v/1000000000; },
 // angle
-    //TODO: missing base as deg
+    //TODO: missing base as deg. Is it a problem to have 2 base measure in sk spec?
     "rad": function(v) { return v; },
     "deg": Qty.swiftConverter('rad', 'deg'),
     "grad": Qty.swiftConverter('rad', 'grad'),
-// Torque
-    //TODO: missing Nm "Torque in Newton meter"
 // Force
-    //TODO: missing N "Force in newton"
+    "N": function(v) { return v; },
+    "lbf": Qty.swiftConverter('N', 'lbf'),
+// Torque
+    "Nm": function(v) { return v; },
 // ratio
     'percent': function(v) { return v * 100 },
     'percentraw': function(v) { return v },
