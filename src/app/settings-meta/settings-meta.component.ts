@@ -1,6 +1,7 @@
-import { IZone, Type } from './../signalk-interfaces';
+import { IZone } from './../signalk-interfaces';
 import { Subscription } from 'rxjs';
 import { MetaService, IMetaRegistration } from './../meta.service';
+import { ISkBaseUnit, UnitsService } from './../units.service';
 import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, Inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -157,10 +158,13 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
   public data: IMetaRegistration;
   private selectSub: Subscription;
 
+  public skValueUnits: ISkBaseUnit[];
+
 
   constructor(
     public dialogRef: MatDialogRef<DialogEditMetaProperties>,
     public fb: FormBuilder,
+    public units: UnitsService,
     @Inject(MAT_DIALOG_DATA) public metaData: IMetaRegistration) {
     }
 
@@ -171,6 +175,8 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
     this.data.meta.zones = undefined;
     this.data.meta.type = undefined;
 
+    this.skValueUnits = this.units.getDefaultSkUnits();
+
     this.selectSub = this.propertiesForm.get('displayScale.type').valueChanges.subscribe(value => {
       this.setDisplayScaleControls(value);
     })
@@ -180,7 +186,7 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
     this.propertiesForm.patchValue({shortName: this.data.meta?.shortName});
     this.propertiesForm.patchValue({longName: this.data.meta?.longName});
     this.propertiesForm.patchValue({description: this.data.meta?.description});
-    this.propertiesForm.patchValue({units: this.data.meta?.units || ''});
+    this.propertiesForm.patchValue({units: this.data.meta?.units});
     this.propertiesForm.patchValue({timeout: this.data.meta?.timeout});
 
     this.propertiesForm.controls.displayScale.patchValue({lower: this.data.meta?.displayScale?.lower});

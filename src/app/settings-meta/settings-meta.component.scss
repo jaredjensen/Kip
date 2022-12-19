@@ -166,6 +166,10 @@ flex: 1 1 80%;
 flex: 1 1 45%;
 }
 
+.properties-field-with-info {
+  width: calc(100% - 40px);
+}
+
 .properties-scale-type {
   justify-content: flex-start;
   align-items: center;

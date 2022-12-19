@@ -231,14 +231,12 @@
             </mat-icon>
         </mat-form-field>
         <div class="propreties-cell-half-size" *ngIf="metaData.meta.type === 'number'">
-          <mat-form-field appearance="outline" floatLabel="always">
+          <mat-form-field class="properties-field-with-info" appearance="outline" floatLabel="always">
             <mat-label>Data Units</mat-label>
             <mat-select #dataUnits formControlName="units">
-              <mat-option value="">Undefined</mat-option>
-              <mat-option value="V">Volts</mat-option>
-              <mat-option value="logarithmic">Logarithmic adsf ads fasfd</mat-option>
-              <mat-option value="squareroot">Squareroot</mat-option>
-              <mat-option value="power">Power (P)</mat-option>
+              <mat-option *ngFor="let skUnit of skValueUnits" [value]="skUnit.unit">
+                {{skUnit.unit}} - {{skUnit.properties.description}}
+              </mat-option>
             </mat-select>
           </mat-form-field>
           <button mat-icon-button type="button" (click)="tooltipdataUnits.toggle()">
