@@ -154,8 +154,8 @@ export class SignalKService {
     // Update connection msg stats
     this.updateStatistics.currentSecond++;
 
-    // Convert position data to match Kip's default position format - could be removed for performance
-    //TODO:  sk default is 'deg' why do we convert? Do we need another Position unit Goup to remove this?
+    // Convert position data to match Kip's default position format - could be removed from here and handled in Units service for performance
+    // TODO: future performance improvement
     if (dataPath.path.includes('position.latitude') || dataPath.path.includes('position.longitude')) {
       dataPath.value = this.degToRad(dataPath.value);
     }
