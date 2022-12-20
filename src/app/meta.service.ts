@@ -54,10 +54,10 @@ export class MetaService {
 
     // Observer of Delta service Metadata updates
     this.delta.subscribeMetadataUpdates().subscribe((deltaMeta: IPathMetadata) => {
-      this.processMetaUpte(deltaMeta);
+      this.processMetaUpdate(deltaMeta);
     })
 
-    // Observer of signalk service new unknown path updates
+    // Observer of signal K service new unknown path updates
     this.signalk.getNewPathsAsO().subscribe((path: IMetaPathType) => {
       this.addMetaPath(path);
     })
@@ -88,13 +88,13 @@ export class MetaService {
     this.metas$.next(this.metas);
   }
 
-  private processMetaUpte(meta: IPathMetadata): void {
+  private processMetaUpdate(meta: IPathMetadata): void {
     let metaIndex = this.metas.findIndex(pathObject => pathObject.path == meta.path);
 
     // TODO: Remove test logging
-    // if (meta.path == 'self.electrical.batteries.1.voltage') {
-    //   console.log(meta);
-    // }
+    if (meta.path == 'self.electrical.batteries') {
+      console.log(meta);
+    }
 
 
 
@@ -110,7 +110,7 @@ export class MetaService {
   }
 
   public getMetaPaths(valueType?: string, selfOnly?: boolean): IMetaRegistration[] {
-    let metaPaths: IMetaRegistration[] = [...this.metas]; // copy values - loose reference
+    let metaPaths: IMetaRegistration[] = JSON.parse(JSON.stringify(this.metas)); // copy values - loose reference
 
     if (selfOnly) {
       metaPaths = metaPaths.filter( item => item.path.startsWith("self") );

@@ -69,7 +69,7 @@
 
       </div>
       <!-- Display Scale -->
-      <div class="properties-row group-control-box" formGroupName="displayScale">
+      <div class="properties-row group-control-box" formGroupName="displayScale" *ngIf="metaData.meta.type === 'number'">
         <label class="mat-card-subtitle mat-tab-group">Display Scale</label>
         <button mat-icon-button type="button" (click)="tooltipDisplayScale.toggle()">
           <i #tooltipDisplayScale="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
@@ -128,7 +128,7 @@
       </div>
 
       <!-- Alert Methodes -->
-      <div class="properties-row group-control-box">
+      <div class="properties-row group-control-box" *ngIf="metaData.meta.type === 'number' || metaData.meta.type === 'boolean'">
         <label class="mat-card-subtitle mat-tab-group">Notification Method</label>
         <button mat-icon-button type="button" (click)="tooltipMethod.toggle()">
           <i #tooltipMethod="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
@@ -191,7 +191,7 @@
       </div>
       <!-- Units and Timeout -->
 
-      <!-- Description fields -->
+      <!-- path Description fields -->
       <div class="properties-row">
         <mat-form-field class="fill-available" appearance="outline" floatLabel="always">
           <mat-label>Data Description</mat-label>
@@ -207,17 +207,7 @@
         </mat-form-field>
       </div>
 
-      <div class="properties-row">
-        <!-- <mat-form-field class="propreties-cell-half-size" appearance="outline" floatLabel="always">
-          <mat-label>WANRNING - SHOULD BE a LIST -Data Units</mat-label>
-          <input
-            type="text"
-            matInput
-            name="units"
-            formControlName="units"
-            placeholder="Enter text value..."/>
-        </mat-form-field> -->
-
+      <div class="properties-row" *ngIf="metaData.meta.type === 'number' || metaData.meta.type === 'boolean' || metaData.meta.type === 'string'">
         <mat-form-field class="propreties-cell-half-size" appearance="outline" floatLabel="always">
           <mat-label>Data Timeout</mat-label>
           <input
@@ -241,7 +231,7 @@
           </mat-form-field>
           <button mat-icon-button type="button" (click)="tooltipdataUnits.toggle()">
             <i #tooltipdataUnits="matTooltip" style="padding-bottom: 20px;" class="fa-solid fa-circle-info fa-2xl" matTooltipPosition="left"
-              matTooltip="The type of unit this path value provides. IMPORTANT: Changing the units type does not change/convert the underlying value being published by Signal K. Units only serve to describe the data. To convert path value displayed in a Widget, use the Widget's 'Display Format' configuration option in the corresponding widget's 'Widget Options' Path tab. To change Kip's default value types app wide, use the Configuration Units settings tab">
+              matTooltip="The type of unit this path value provides. IMPORTANT: Changing the units type does not change/convert the underlying value being published by Signal K. Units only serve to describe the data. If no appropriate units is available in this list, leave the field blank. To convert path value displayed in a Widget, use the Widget's 'Display Format' configuration option in the corresponding widget's 'Widget Options' Path tab. To change Kip's default value types app wide, use the Configuration Units settings tab">
             </i>
           </button>
         </div>

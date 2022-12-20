@@ -24,20 +24,31 @@
          <!-- Type Column -->
          <ng-container matColumnDef="meta.type">
           <mat-header-cell class="dataHeader" *matHeaderCellDef mat-sort-header>Data Type</mat-header-cell>
-          <mat-cell class="dataCell" *matCellDef="let element" data-label="Data Type: "> {{element.meta.type}} </mat-cell>
+          <mat-cell class="dataCell" *matCellDef="let element" data-label="Data Type: ">
+            <span *ngIf="element.meta.type === undefined">--</span>
+            <span *ngIf="element.meta.type !== undefined"> {{element.meta.type}} </span>
+          </mat-cell>
         </ng-container>
 
         <!-- Unit Column -->
         <ng-container matColumnDef="meta.units">
           <mat-header-cell class="dataHeader" *matHeaderCellDef mat-sort-header>Units</mat-header-cell>
-          <mat-cell class="dataCell" *matCellDef="let element" data-label="Units: "> {{element.meta.units}} </mat-cell>
+          <mat-cell class="dataCell" *matCellDef="let element" data-label="Units: ">
+            <span *ngIf="element.meta.type === 'number'; else noUnit">
+              {{element.meta.units}}
+            </span>
+
+            <ng-template #noUnit>
+              --
+            </ng-template>
+            </mat-cell>
         </ng-container>
 
         <!-- Action Column -->
         <ng-container matColumnDef="actions">
           <mat-header-cell class="actionHeader" *matHeaderCellDef>  </mat-header-cell>
           <mat-cell class="actionCell" *matCellDef="let element">
-            <button mat-raised-button class="buttons" color="accent" (click)="openMetaDialog(element)">Properties</button>
+            <button mat-raised-button class="buttons" color="accent" [class.dont-show]="element.meta.type === 'object'" (click)="openMetaDialog(element)">Properties</button>
 
             <!-- <button mat-raised-button color="accent" *ngIf="element.meta.type == 'number'" (click)="openZonesDialog(element)">Zones</button> -->
             <button mat-raised-button color="accent" [class.dont-show]="element.meta.type !== 'number'" (click)="openZonesDialog(element)">Zones</button>

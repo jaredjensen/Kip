@@ -332,7 +332,7 @@ export class SignalKDeltaService {
       return;
     } else {
       let meta: IPathMetadata;
-      // does meta have one with properties for each one?
+      // Is this a meta properties?
       if (metadata.value?.properties !== undefined) {
         Object.keys(metadata.value.properties).forEach(key => {
           meta = {
