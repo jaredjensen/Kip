@@ -72,7 +72,7 @@ export class NotificationsService {
   });
   public snackbarAppNotifications: Subject<AppNotification> = new Subject<AppNotification>(); // for snackbar message
 
-  // sounds properties
+  // Audio Player properties
   howlPlayer: Howl;
   activeAlarmSoundtrack: number;
   activeHowlId: number;
@@ -158,6 +158,7 @@ export class NotificationsService {
    * @param notification Raw content of the notification message from SignalK server as INotification
    */
   public addAlarm(path: string, notification: INotification) {
+    // TODO: Not sure we need this here... also present in processNotificationDelta()
     if (this.notificationConfig.disableNotifications) {
       return;
     }
@@ -219,7 +220,7 @@ export class NotificationsService {
       this.activeAlarmsSubject.next(this.alarms);
       if (timeout > 0) {
         setTimeout(()=>{
-          console.log("unack: "+ path);
+          console.log(`[Notification Service] Unack: ${path}`);
           if (path in this.alarms) {
             this.alarms[path].isAck = false;
             this.activeAlarmsSubject.next(this.alarms);
@@ -283,7 +284,7 @@ export class NotificationsService {
           aSev = 0;
           vSev = 0;
           this.sendSnackbarNotification("Unknown Notification State received from SignalK", 0, false);
-          console.log("Unknown Notification State received from SignalK\n" + JSON.stringify(alarm));
+          console.log("[Notification Service] Unknown Notification State received from SignalK\n" + JSON.stringify(alarm));
       }
       audioSev = Math.max(audioSev, aSev);
       visualSev = Math.max(visualSev, vSev);
@@ -364,10 +365,10 @@ export class NotificationsService {
           // console.log('Finished!');
         },
         onloaderror: function() {
-          console.log("player onload error");
+          console.log("[Notification Service] Player onload error");
         },
         onplayerror: function() {
-          console.log("player locked");
+          console.log("[Notification Service] Player locked");
           this.howlPlayer.once('unlock', function() {
             this.howlPlayer.play();
           });
@@ -384,14 +385,14 @@ export class NotificationsService {
   mutePlayer(state) {
     this.howlPlayer.mute(state, this.activeHowlId);
     this.isHowlIdMuted = state;
-    this.checkAlarms(); //make sure to push updated info tro alarm menu
+    this.checkAlarms(); //make sure to push updated info to alarm menu
   }
 
-   /**
+  /**
    * play audio notification sound
    * @param trackId track to play
    */
-   playAlarm(trackId: number) {
+  playAlarm(trackId: number) {
     if (this.activeAlarmSoundtrack == trackId) {   // same track, do nothing
       return;
     }

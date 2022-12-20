@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NotificationsService, Alarm, IAlarmInfo } from '../notifications.service';
-import { AppSettingsService } from '../app-settings.service';
+import { NotificationsService, Alarm } from '../notifications.service';
 import { Subscription } from 'rxjs';
 import { INotificationConfig } from '../app-settings.interfaces';
 
@@ -52,8 +51,7 @@ export class AlarmMenuComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // init Alarm stream
-    this.alarmSub = this.notificationsService.getAlarms().subscribe(
-      message => {
+    this.alarmSub = this.notificationsService.getAlarms().subscribe( message => {
         this.notificationAlarms = message;
         // Disabling notifications is done at the service level. No need to handle it here
         this.buildAlarmMenu();

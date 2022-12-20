@@ -107,8 +107,9 @@ export class SettingsMetaComponent implements OnInit, OnDestroy, AfterViewInit {
 }
 
 
-
+// ***********
 // *********** edit properties compoment
+// ***********
 
 // zone form validator function
 export function displayScaleValidator(): ValidatorFn {
@@ -268,8 +269,9 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
   }
 }
 
-
+// ***********
 // *********** edit zone compoment
+// ***********
 
 // zone form validator function
 export function rangeValidator(): ValidatorFn {

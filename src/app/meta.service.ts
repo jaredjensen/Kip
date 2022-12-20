@@ -129,7 +129,7 @@ export class MetaService {
         // console.log(key + " : " + metaUpdate.meta[key]);
         this.Requests.putRequest(metaPath + key, metaUpdate.meta[key]);
       } else {
-        this.Requests.putRequest(metaPath + key, undefined);
+        // this.Requests.putRequest(metaPath + key, undefined);
       }
     });
 
@@ -149,6 +149,14 @@ export class MetaService {
   }
 
   public addZones(newPathZoneDef: IPathZoneDef) {
+    // *** Zones definitions can be published and they are processed by Signal K
+    // *** and appropriate zone state notifications are sent back
+    // *** BUT the Zones definitions are not published back as meta.zones
+    // *** Until this feature is added to SK, we need to keep a duplicate local
+    // *** copy of Zones definitions in Config. This far from ideal and can create
+    // *** out of sync zone def problems.
+
+    // because zones are not sen
     // check if exists
     let metaIndex = this.metas.findIndex(item => item.path == newPathZoneDef.path);
     if (metaIndex >= 0) {
@@ -156,24 +164,24 @@ export class MetaService {
     } else {
       this.metas.push(newPathZoneDef);
     }
-    // Compute zone state and push to observers
-    //TODO: this.updateZones(newPathZoneDef.path);
-    const zones = {zones: newPathZoneDef.zonesDef};
-      this.metas.push({
-        path: newPathZoneDef.path,
-        meta: zones
-      });
+
     this.metas$.next(this.metas);
 
-    // Save Zone configuration
+    // pad path with meta zones
+    let zonesPath = newPathZoneDef.path + ".meta.zones";
+    this.Requests.putRequest(zonesPath, newPathZoneDef.zonesDef);
+
+    // Get Zone configuration settings
     let zonesConfig = this.settings.getZones();
-    // check if exists in zone config
+    // check if path exists in zone configuration
     let zoneConfigIndex = zonesConfig.findIndex(pathZonesDef => pathZonesDef.path == newPathZoneDef.path);
     if (zoneConfigIndex >= 0) {
       zonesConfig[zoneConfigIndex].zonesDef = newPathZoneDef.zonesDef;
     } else {
       zonesConfig.push(newPathZoneDef);
     }
+
+    // save updated Zone configuration settings
     this.settings.saveZones(zonesConfig);
   }
 
