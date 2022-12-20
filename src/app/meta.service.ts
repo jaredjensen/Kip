@@ -23,14 +23,8 @@ export interface IMetaRegistration {
 })
 export class MetaService {
 
-  /////////////////
-  //TODO: to update meta to SK! PUT '/signalk/v1/api/vessels/self/electrical/controls/venus-0/state/meta/displayName' or whole structure.
-  // it overwrites !
-
   private metas: Array<IMetaRegistration> = [];
   private metas$: BehaviorSubject<Array<IMetaRegistration>> = new BehaviorSubject<Array<IMetaRegistration>>([]);
-  //TODO: remove and move to Delta service
-  private selfurn: string;
 
   constructor(
     private settings: AppSettingsService,
@@ -48,8 +42,6 @@ export class MetaService {
       });
     });
 
-    //TODO: this.updateZones();
-    //TODO: this.updateMetas();
     this.metas$.next(this.metas);
 
     // Observer of Delta service Metadata updates
@@ -61,16 +53,6 @@ export class MetaService {
     this.signalk.getNewPathsAsO().subscribe((path: IMetaPathType) => {
       this.addMetaPath(path);
     })
-
-
-    // Observer of vessel Self URN
-    this.delta.subscribeSelfUpdates().subscribe(self => {
-      this.selfurn = self;
-    });
-
-
-    //TODO: Eventually we should load zones defined in SK and combine with appropriate UI to override with local config as neccesary. At the moment zones are rearely present in SK.
-    // get sk service meta Zones info into metas[]
   }
 
   private addMetaPath(newPath: IMetaPathType) {
@@ -92,9 +74,9 @@ export class MetaService {
     let metaIndex = this.metas.findIndex(pathObject => pathObject.path == meta.path);
 
     // TODO: Remove test logging
-    if (meta.path == 'self.electrical.batteries') {
-      console.log(meta);
-    }
+    // if (meta.path == 'self.electrical.batteries') {
+    //   console.log(meta);
+    // }
 
 
 
@@ -213,80 +195,6 @@ export class MetaService {
     } else {
       return false;
     }
-  }
-
-  //TODO: Is it needed?
-  public updatePathDataState() {
-
-  }
-
-  public updateZoneNotification(path?: string){
-  // //TODO: fix
-  // // Check for any zones to set state
-  // let state: IZoneState = IZoneState.normal;
-  // this.zones.forEach(zone => {
-  //   if (zone.path != pathSelf) { return; }
-  //   let lower = zone.lower || -Infinity;
-  //   let upper = zone.upper || Infinity;
-  //   let convertedValue = this.unitService.convertUnit(zone.unit, dataPath.value);
-  //   if (convertedValue >= lower && convertedValue <= upper) {
-  //     //in zone
-  //     state = Math.max(state, zone.state);
-  //   }
-  // });
-  // // if we're not in alarm, and new state is alarm, sound the alarm!
-  // // @ts-ignore
-  // if (state != IZoneState.normal && state != this.paths[pathIndex].state) {
-  //   let stateString; // notif service needs string....
-  //   let methods;
-  //   switch (state) {
-  //     // @ts-ignore
-  //     case IZoneState.nominal:
-  //       stateString = "nominal"
-  //       methods = [ 'visual', 'sound' ];
-  //       break;
-
-  //     case IZoneState.emergency:
-  //       stateString = "emergency"
-  //       methods = [ 'visual', 'sound' ];
-  //       break;
-
-  //     // @ts-ignore
-  //     case IZoneState.alarm:
-  //         stateString = "alarm"
-  //         methods = [ 'visual','sound' ];
-  //         break;
-
-  //     case IZoneState.warn:
-  //       stateString = "warn"
-  //       methods = [ 'visual', 'sound' ];
-  //       break;
-
-  //     // @ts-ignore
-  //     case IZoneState.alert:
-  //         stateString = "alert"
-  //         methods = [ 'visual','sound' ];
-  //         break;
-  //   }
-
-
-  //   // Send Notification
-  //   this.notificationsService.addAlarm(pathSelf, {
-  //     method: methods,
-  //     state: stateString,
-  //     message: pathSelf + ' value in ' + stateString,
-  //     timestamp: Date.now().toString(),
-  //   })
-  // }
-
-  // // if we're in alarm, and new state is not alarm, stop the alarm
-  // // @ts-ignore
-  // if (this.paths[pathIndex].state != IZoneState.normal && state == IZoneState.normal) {
-  //   this.notificationsService.deleteAlarm(pathSelf);
-  // }
-
-  // this.paths[pathIndex].state = state;
-
   }
 
   /**

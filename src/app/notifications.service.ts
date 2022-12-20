@@ -83,7 +83,7 @@ export class NotificationsService {
     private appSettingsService: AppSettingsService,
     private deltaService: SignalKDeltaService,
     ) {
-    // Observer of Notification Servicer configuration
+    // Observer of Notification service configuration
     this.appSettingsService.getNotificationServiceConfigAsO().subscribe((config: INotificationConfig) => {
       this.notificationConfig = config;
       this.notificationConfig$.next(config); // push to alrm menu
@@ -97,7 +97,7 @@ export class NotificationsService {
       }
     });
 
-    //Observer of server connection status
+    // Observer of server connection status
     this.deltaService.streamEndpoint$.subscribe((streamStatus: IStreamStatus) => {
       if (streamStatus.operation === 2) {
         this.resetAlarms();
@@ -127,9 +127,11 @@ export class NotificationsService {
     this.snackbarAppNotifications.next({ message: message, duration: duration, silent: silent});
   }
 
-  public subscribeAlarms() {}
-  public unsubscribeAlarms() {}
-  public listAlarms() {}
+  // TODO: add notification subscription method for widgets. They should send the data path they use to register: notifications follw data path structure eg: self.navigation.anchor.currentRadious data is self.notifications.navigation.anchor.currentRadious
+  // public subscribeNotification() {}
+  // public unsubscribeNotification() {}
+
+  // public listNotifications() {}
 
   /**
    * Clears all Kip internal Notification Alarm system/array.
@@ -156,12 +158,13 @@ export class NotificationsService {
    * @param notification Raw content of the notification message from SignalK server as INotification
    */
   public addAlarm(path: string, notification: INotification) {
+    if (this.notificationConfig.disableNotifications) {
+      return;
+    }
 
     if (/^notifications.security./.test(path)) {
       return; // as per sbender this part is not ready in the spec - Don't add to alarms
     }
-
-    if (this.notificationConfig.disableNotifications) { return; }
 
     if (path in this.alarms) {
       this.alarms[path].notification = notification;
@@ -192,7 +195,7 @@ export class NotificationsService {
   /**
   * Deletes one alarm and notifies all observers
   * @param path String path for the alarm to delete
-  * @return True If path exists, false if not found.
+  * @return True if successful, false if path not found.
   */
   public deleteAlarm(path: string): boolean {
     if (path in this.alarms) {
@@ -298,10 +301,6 @@ export class NotificationsService {
     });
   }
 
-  getAlarmInfoAsO() {
-    return this.alarmsInfo.asObservable();
-  }
-
   /**
    * Observable to receive Kip app Snackbar notification. Use in app.component ONLY.
    *
@@ -313,6 +312,7 @@ export class NotificationsService {
     return this.snackbarAppNotifications.asObservable();
   }
 
+  // TODO: update description
   /**
    * Processes SignalK Delta metadata containing Notifications information and
    * routes to Kip Notification system as Alarms and Notifications.
@@ -321,25 +321,28 @@ export class NotificationsService {
    * @param notificationValue Content of the message. Must conform to INotification interface.
    * @usageNotes This function is internal and should not be used.
    */
-  public processNotificationDelta(notificationDelta: INotificationDelta) {
+  public processNotificationDelta(delta: INotificationDelta) {
     if (this.notificationConfig.disableNotifications) {
       return;
     }
 
-    if (notificationDelta.notification === null) {
-      // Alarm removed/cleared on server.
-      if (this.deleteAlarm(notificationDelta.path)) {};
+    if (delta.notification === null) {
+      // Server sent remove/clear notification state message
+      if (this.deleteAlarm(delta.path)) {
+      } else {
+        console.log(`[Notification Service] Unable to clear alarm. Unknown Path: ${delta.path}`);
+      };
     } else {
-      if (notificationDelta.path in this.alarms) {
-        //already know of this alarm. Just check if updated (no need to update doc/etc if no change)
-        if (    (this.alarms[notificationDelta.path].notification['state'] !== notificationDelta.notification['state'])
-              ||(this.alarms[notificationDelta.path].notification['message'] !== notificationDelta.notification['message'])
-              ||(JSON.stringify(this.alarms[notificationDelta.path].notification['method']) !== JSON.stringify(notificationDelta.notification['method'])) ) { // no easy way to compare arrays??? ok...
-          this.updateAlarm(notificationDelta.path, notificationDelta.notification);
+      if (delta.path in this.alarms) {
+        //already know of this alarm. Update only if different (no need to update if no change)
+        if (    (this.alarms[delta.path].notification['state'] !== delta.notification['state'])
+              ||(this.alarms[delta.path].notification['message'] !== delta.notification['message'])
+              ||(JSON.stringify(this.alarms[delta.path].notification['method']) !== JSON.stringify(delta.notification['method'])) ) { // no easy way to compare arrays??? ok...
+          this.updateAlarm(delta.path, delta.notification);
         }
       } else {
-        // New Alarm, send it
-        this.addAlarm(notificationDelta.path, notificationDelta.notification);
+        // New Alarm, add it
+        this.addAlarm(delta.path, delta.notification);
       }
     }
   }
@@ -402,6 +405,10 @@ export class NotificationsService {
     this.howlPlayer.stop();
     this.howlPlayer = this.getPlayer(trackId);
     this.activeHowlId = this.howlPlayer.play();
+  }
+
+  public getAlarmInfoAsO(): Observable<IAlarmInfo> {
+    return this.alarmsInfo.asObservable();
   }
 
   public getNotificationServiceConfigAsO(): Observable<INotificationConfig> {
