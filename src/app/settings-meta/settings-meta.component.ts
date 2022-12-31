@@ -1,3 +1,5 @@
+import { NotificationsService } from './../notifications.service';
+import { AuththeticationService } from './../auththetication.service';
 import { IZone } from './../signalk-interfaces';
 import { Subscription } from 'rxjs';
 import { MetaService, IMetaRegistration } from './../meta.service';
@@ -20,14 +22,18 @@ export class SettingsMetaComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  tableData = new MatTableDataSource<IMetaRegistration>([]);
-  displayedColumns: string[] = ['path', 'meta.type', 'meta.units', 'actions'];
+  public tableData = new MatTableDataSource<IMetaRegistration>([]);
+  public displayedColumns: string[] = ['path', 'meta.type', 'meta.units', 'actions'];
 
-  metaSub: Subscription;
+  private metaSub: Subscription;
+  private tokenSub: Subscription;
+  public hasToken: boolean;
 
   constructor(
     private meta: MetaService,
     public dialog: MatDialog,
+    private notifications: NotificationsService,
+    private auth: AuththeticationService,
     private cdRef: ChangeDetectorRef,
   ) { }
 
@@ -48,8 +54,18 @@ export class SettingsMetaComponent implements OnInit, OnDestroy, AfterViewInit {
     };
     this.tableData.sort = this.sort;
 
+    // Meta observer
     this.metaSub = this.meta.getMetasObservable().subscribe((metas: Array<IMetaRegistration>) => {
       this.tableData.data = [...metas];
+    });
+
+    // logged in observer
+    this.tokenSub = this.auth.authToken$.subscribe(authToken => {
+      if (authToken && authToken.token) {
+        this.hasToken = true;
+      } else {
+        this.hasToken = false;
+      }
     });
   }
 
@@ -75,6 +91,7 @@ export class SettingsMetaComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.metaSub.unsubscribe();
+    this.tokenSub.unsubscribe();
   }
 
   public openMetaDialog(metaNode: IMetaRegistration) {

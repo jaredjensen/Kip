@@ -48,10 +48,8 @@
         <ng-container matColumnDef="actions">
           <mat-header-cell class="actionHeader" *matHeaderCellDef>  </mat-header-cell>
           <mat-cell class="actionCell" *matCellDef="let element">
-            <button mat-raised-button class="buttons" color="accent" [class.dont-show]="element.meta.type === 'object'" (click)="openMetaDialog(element)">Properties</button>
-
-            <!-- <button mat-raised-button color="accent" *ngIf="element.meta.type == 'number'" (click)="openZonesDialog(element)">Zones</button> -->
-            <button mat-raised-button color="accent" [class.dont-show]="element.meta.type !== 'number'" (click)="openZonesDialog(element)">Zones</button>
+            <button mat-raised-button class="buttons" color="accent" [disabled]="!hasToken" [class.dont-show]="element.meta.type === 'object'" (click)="openMetaDialog(element)">Properties</button>
+            <button mat-raised-button color="accent" [disabled]="!hasToken" [class.dont-show]="element.meta.type !== 'number'" (click)="openZonesDialog(element)">Zones</button>
           </mat-cell>
         </ng-container>
 
@@ -72,6 +70,5 @@
   </mat-card-content>
   <mat-divider inset></mat-divider>
   <mat-card-actions align="end">
-    <!-- <button type="button" mat-raised-button color="accent" (click)="openZoneDialog()">Add</button> -->
   </mat-card-actions>
 </mat-card>
