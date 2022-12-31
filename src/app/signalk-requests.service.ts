@@ -9,7 +9,8 @@ import { AuththeticationService } from './auththetication.service';
 
 const deltaStatusCodes = {
   200: "The request was successfully.",
-  202: "The request is awaiting authorization.",
+  201: "Request successful. Document created.",
+  202: "Request accepted. Processing request asynchronously.",
   400: "Bad Client request format.",
   401: "Login failed. Your User ID or Password is incorrect.",
   403: "DENIED: You must be authenticated to send commands. Configure server connection authentication or requets a Device Authorization token.",
@@ -25,6 +26,19 @@ export interface skRequest {
   statusCodeDescription?: string;
   widgetUUID?: string;
   message?: string;
+  accessRequest?: {
+    permission?: string;
+    token?: string;
+    timeToLive?: number; //not yet implemented on server. Use token data to extract TTL
+  };
+  login?: {
+    token: string;
+    timeToLive?: number; //not yet implemented on server. Use token data to extract TTL
+  };
+  validate?: {
+    token?: string;
+    timeToLive?: number; //not yet implemented on server. Use token data to extract TTL
+  }
 }
 
 @Injectable({
@@ -55,8 +69,10 @@ export class SignalkRequestsService {
    * Config and sent with every requests.
    *
    * The Device authorization is a manual process done on the server.
+   *
+   * @return {*}  {string} request UUID used to track request/response processing.
    */
-  public requestDeviceAccessToken() {
+  public requestDeviceAccessToken(): string {
     let requestId = this.newUuid();
     let deviceTokenRequest = {
       requestId: requestId,
@@ -77,6 +93,8 @@ export class SignalkRequestsService {
     }
 
     this.requests.push(request);
+
+    return requestId;
   }
 
   /**
@@ -162,32 +180,45 @@ export class SignalkRequestsService {
       this.requests[index].statusCode = delta.statusCode;
       this.requests[index].message = delta.message;
 
+      if (delta.accessRequest !== undefined) {
+        this.requests[index].accessRequest = delta.accessRequest;
+      }
+
+      if (delta.login !== undefined) {
+        this.requests[index].login = delta.login;
+      }
+
+      if (delta.validate !== undefined) {
+        this.requests[index].validate = delta.validate;
+      }
+
       const currentStatusCode = deltaStatusCodes[delta.statusCode];
 
-      if ((typeof currentStatusCode != 'undefined') && (this.requests[index].statusCode == 200 || this.requests[index].statusCode == 202 || this.requests[index].statusCode == 401 || this.requests[index].statusCode == 405)) {
+      if (typeof currentStatusCode != 'undefined') { // if we know this status code
         this.requests[index].statusCodeDescription = currentStatusCode;
+        console.log(`[Request Service] Received request with statusCode: ${this.requests[index].statusCode} - ${this.requests[index].statusCodeDescription} Optional message: ${this.requests[index].message}`);
 
-        if (this.requests[index].statusCode == 202) {
-          this.NotificationsService.sendSnackbarNotification(this.requests[index].statusCodeDescription);
+        // If PENDING results, dispatch and exit to wait for further processing
+        if (this.requests[index].statusCode == 201 || this.requests[index].statusCode == 202) {
+          this.requestStatus$.next(this.requests[index]);
           return;
         }
 
-        if (this.requests[index].statusCode == 405) {
-          console.log("[Request Service] Status Code: " + this.requests[index].statusCode + " - " + this.requests[index].message);
-        }
-
+        // if Device Access Request result
         if ((delta.accessRequest !== undefined) && (delta.accessRequest.token !== undefined)) {
-          this.NotificationsService.sendSnackbarNotification(delta.accessRequest.permission + ": Device Access Token received from server.");
           console.log(`[Request Service] ${delta.accessRequest.permission}: Device Access Token received`);
           this.auth.setDeviceAccessToken(delta.accessRequest.token);
+        } else if ((delta.accessRequest !== undefined) && (delta.accessRequest.permission === "DENIED")) {
+          console.log(`[Request Service] Device Access Token request ${delta.accessRequest.permission}`);
+        }
 
-        } else if (delta.login !== undefined) {
+        // If Login Request result
+        if (delta.login !== undefined) {
           // Delta (WebSocket) login not implemented. Use REST login from
           // Authetification service to obtain Session token
           if (delta.login.token !== undefined) {
             // Do logic
           }
-
         }
 
       } else {

@@ -28,7 +28,9 @@ export class SettingsSignalkComponent implements OnInit {
 
   connectionConfig: IConnectionConfig;
 
-  authTokenSub: Subscription;
+  private authTokenSub: Subscription;
+  private tokenRequestUUID: string = null;
+  private requestSub: Subscription;
   authToken: IAuthorizationToken;
   isLoggedInSub: Subscription;
   isLoggedIn: boolean;
@@ -36,7 +38,7 @@ export class SettingsSignalkComponent implements OnInit {
   endpointServiceStatus: IEndpointStatus;
   skEndpointServiceStatusSub: Subscription;
   streamStatus: IStreamStatus;
-  skStreamStatusSub: Subscription;
+  private skStreamStatusSub: Subscription;
 
 
   updatesSecondSub: Subscription;
@@ -49,7 +51,7 @@ export class SettingsSignalkComponent implements OnInit {
   textColor; // store the color of text for the graph...
 
   // dynamics theme support
-  themeNameSub: Subscription = null;
+  private themeNameSub: Subscription = null;
 
   constructor(
     public dialog: MatDialog,
@@ -59,6 +61,7 @@ export class SettingsSignalkComponent implements OnInit {
     private signalKConnectionService: SignalKConnectionService,
     private signalkRequestsService: SignalkRequestsService,
     private deltaService: SignalKDeltaService,
+    private request: SignalkRequestsService,
     public auth: AuththeticationService)
   { }
 
@@ -97,13 +100,30 @@ export class SettingsSignalkComponent implements OnInit {
       this.streamStatus = status;
     });
 
-    //get WebSocket Stream performance update
+    // get WebSocket Stream performance update
     this.updatesSecondSub = this.signalKService.getupdateStatsSecond().subscribe(newSecondsData => {
       this.lastSecondsUpdate = newSecondsData[newSecondsData.length-1];
       this.updatesSeconds = newSecondsData;
       if (this.chart !== null) {
         this.chart.config.data.datasets[0].data = newSecondsData;
         this.chart.update('none');
+      }
+    });
+
+    // observe requests service for Device Token approval
+    this.requestSub = this.request.subscribeRequest().subscribe(request => {
+      if (request.requestId  == this.tokenRequestUUID) {
+        if (request.statusCode === 200){
+          if(request?.accessRequest?.permission === "DENIED") {
+            this.notificationsService.sendSnackbarNotification('Device Access request DENIED', 0);
+          } else {
+            this.notificationsService.sendSnackbarNotification('Device Access request approved. Enabling secure connection...', 0);
+          }
+        } else if (request.statusCode === 202) {
+          this.notificationsService.sendSnackbarNotification('Device access request submitted successfully. Signal K server Access Request approval required to complete the process.', 0);
+        } else { // processing error of some kind
+          this.notificationsService.sendSnackbarNotification(`${request?.statusCode}: ${request?.statusCodeDescription}: ${request?.message}`, 0);
+        }
       }
     });
 
@@ -188,7 +208,7 @@ export class SettingsSignalkComponent implements OnInit {
   }
 
   public requestDeviceAccessToken() {
-    this.signalkRequestsService.requestDeviceAccessToken();
+    this.tokenRequestUUID = this.signalkRequestsService.requestDeviceAccessToken();
   }
 
   public deleteToken() {
@@ -272,5 +292,6 @@ export class SettingsSignalkComponent implements OnInit {
     // this.updatesMinutesSub.unsubscribe();
     this.updatesSecondSub.unsubscribe();
     this.themeNameSub.unsubscribe();
+    this.requestSub.unsubscribe();
   }
 }
