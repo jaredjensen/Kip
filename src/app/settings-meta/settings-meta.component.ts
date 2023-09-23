@@ -189,9 +189,9 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Deep copy to loose obj references
     this.data = JSON.parse(JSON.stringify(this.metaData));
-    // Flush/mark as undefined unwanted obj keys (zones, etc.). Easier to track for downstream processing
-    this.data.meta.zones = undefined;
-    this.data.meta.type = undefined;
+    // Delete unwanted obj keys (zones, type) to prevent downstream processing mistakes
+    delete this.data.meta.zones;
+    delete this.data.meta.type;
 
     this.skValueUnits = this.units.getDefaultSkUnits();
 
@@ -249,34 +249,42 @@ export class DialogEditMetaProperties implements OnInit, OnDestroy {
     // Put back original value we don't want to change but must be included so we don't overwrite sk with blank value
     meta = this.data;
     // Push form values
-    meta.meta.description = this.propertiesForm.value.description;
+
+
+    // meta.meta.description = this.propertiesForm.value.description;
     if (this.propertiesForm.value.displayName === '') {
-      meta.meta.displayName = undefined;
+      meta.meta.displayName = "DELETE";
     } else {
       meta.meta.displayName = this.propertiesForm.value.displayName;
     }
-    meta.meta.shortName = this.propertiesForm.value.shortName;
-    meta.meta.longName = this.propertiesForm.value.longName;
-    meta.meta.units = this.propertiesForm.value.units;
+    // meta.meta.shortName = this.propertiesForm.value.shortName;
+    // meta.meta.longName = this.propertiesForm.value.longName;
+    // meta.meta.units = this.propertiesForm.value.units;
+
+    // TODO: temp remove
+    // meta.meta.units = undefined;
+    // meta.meta.description = undefined;
+
+
     if (this.propertiesForm.value.timeout == null) {
       meta.meta.timeout = undefined;
     } else {
       meta.meta.timeout = this.propertiesForm.value.timeout;
     }
-    if (this.propertiesForm.value.displayScale.type !== '') {
-      meta.meta.displayScale = {
-        type: this.propertiesForm.value.displayScale.type,
-        lower: this.propertiesForm.value.displayScale.lower,
-        upper: this.propertiesForm.value.displayScale.upper,
-        power: this.propertiesForm.value.displayScale.power,
-      }
-    } else {
-      meta.meta.displayScale = undefined;
-    }
-    meta.meta.alertMethod = this.propertiesForm.value.alertMethod;
-    meta.meta.warnMethod = this.propertiesForm.value.warnMethod;
-    meta.meta.alarmMethod = this.propertiesForm.value.alarmMethod;
-    meta.meta.emergencyMethod = this.propertiesForm.value.emergencyMethod;
+    // if (this.propertiesForm.value.displayScale.type !== '') {
+    //   meta.meta.displayScale = {
+    //     type: this.propertiesForm.value.displayScale.type,
+    //     lower: this.propertiesForm.value.displayScale.lower,
+    //     upper: this.propertiesForm.value.displayScale.upper,
+    //     power: this.propertiesForm.value.displayScale.power,
+    //   }
+    // } else {
+    //   meta.meta.displayScale = undefined;
+    // }
+    // meta.meta.alertMethod = this.propertiesForm.value.alertMethod;
+    // meta.meta.warnMethod = this.propertiesForm.value.warnMethod;
+    // meta.meta.alarmMethod = this.propertiesForm.value.alarmMethod;
+    // meta.meta.emergencyMethod = this.propertiesForm.value.emergencyMethod;
 
     this.dialogRef.close(meta);
   }

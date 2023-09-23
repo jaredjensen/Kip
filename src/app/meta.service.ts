@@ -33,6 +33,7 @@ export class MetaService {
     private Requests: SignalkRequestsService
   ) {
     // Load zones from config
+    //TODO: Remove once zone are fully handled by SK server
     const zonesConfig = this.settings.getZones();
     zonesConfig.forEach(item => {
       const zones = {zones: item.zonesDef};
@@ -48,6 +49,8 @@ export class MetaService {
     this.delta.subscribeMetadataUpdates().subscribe((deltaMeta: IPathMetadata) => {
       this.processMetaUpdate(deltaMeta);
     })
+
+    //TODO: add flush/reload on delta service restart
 
     // Observer of signal K service new unknown path updates
     this.signalk.getNewPathsAsO().subscribe((path: IMetaPathType) => {
@@ -81,6 +84,7 @@ export class MetaService {
 
 
     if (metaIndex >= 0) {
+      //TODO: Bug - does not remove properties. if received meta = {}  FULL EMPTY. It should replace with blank obj
       this.metas[metaIndex].meta = {...this.metas[metaIndex].meta, ...meta.meta};
     } else { // not in our list yet. We add a new path
       this.metas.push({
@@ -126,16 +130,9 @@ export class MetaService {
     // parse keys that are not undefined
     Object.keys(metaUpdate.meta).forEach(key => {
       if (metaUpdate.meta[key] !== undefined) {
-        // console.log(key + " : " + metaUpdate.meta[key]);
         this.Requests.putRequest(metaPath + key, metaUpdate.meta[key]);
-      } else {
-        // this.Requests.putRequest(metaPath + key, undefined);
       }
     });
-
-    // this.Requests.putRequest(metaPath, metaUpdate.meta.displayName);
-
-
   }
 
   public getPathUnitType(path: string): string | null {
