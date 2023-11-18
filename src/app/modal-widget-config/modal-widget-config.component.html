@@ -347,6 +347,13 @@
       </mat-tab>
 <!-- end Historical -->
 
+<!-- Sailplan stuff -->
+      <mat-tab label="Sail Plan" *ngIf="widgetConfig.sailPlanEnable !== undefined">
+        <app-sailplan-modal-widget-config
+          [formGroup]="formMaster">
+        </app-sailplan-modal-widget-config>
+      </mat-tab>
+
     </mat-tab-group>
   </mat-dialog-content>
   <mat-dialog-actions>

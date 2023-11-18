@@ -44,6 +44,7 @@ export class WidgetDateGenericComponent extends BaseWidgetComponent implements O
   }
 
   ngOnInit() {
+    this.validateConfig();
     this.observeDataStream('gaugePath', newValue => {
       this.dataValue = newValue.value;
       this.updateCanvas();

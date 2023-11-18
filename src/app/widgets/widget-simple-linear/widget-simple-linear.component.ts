@@ -42,6 +42,7 @@ export class WidgetSimpleLinearComponent extends BaseWidgetComponent implements 
   }
 
   ngOnInit(): void {
+    this.validateConfig();
     // set Units label sting based on gauge config
     if (this.widgetProperties.config.gaugeUnitLabelFormat == "abr") {
       //  TODO: Improve Units service to have Full Measure label, abbriviation and descriptions so that we can use Full or abr display labels...!

@@ -98,6 +98,7 @@ import { DataBrowserRowComponent, DialogUnitSelect } from './data-browser-row/da
 import { ModalUserCredentialComponent } from './modal-user-credential/modal-user-credential.component';
 import { WidgetRaceTimerComponent } from './widgets/widget-race-timer/widget-race-timer.component';
 import { WidgetLoginComponent } from './widgets/widget-login/widget-login.component';
+import { SailplanModalWidgetConfigComponent } from './sailplan-modal-widget-config/sailplan-modal-widget-config.component';
 
 
 const appRoutes: Routes = [
@@ -177,7 +178,8 @@ const appNetworkInitializerFn = (appNetInitSvc: AppNetworkInitService) => {
     AlarmMenuComponent,
     SettingsGeneralComponent,
     DataBrowserComponent,
-    DataBrowserRowComponent
+    DataBrowserRowComponent,
+    SailplanModalWidgetConfigComponent
   ],
   imports: [
     BrowserModule,

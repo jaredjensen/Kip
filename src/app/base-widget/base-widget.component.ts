@@ -1,4 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
+import { merge, cloneDeep } from "lodash-es";
 import { Observable, Observer, Subscription, sampleTime } from 'rxjs';
 import { SignalKService, pathRegistrationValue } from '../signalk.service';
 import { UnitsService } from '../units.service';
@@ -29,6 +30,23 @@ export abstract class BaseWidgetComponent {
   protected unitsService = inject(UnitsService);
 
   constructor() {
+  }
+
+  /**
+   * This method is used to insure Widget configuration property model changes (not value)
+   * are added to older versions of Widget configuration and limit breaking changes.
+   *
+   * The method compares Widget configuration (from saved storage config) with Widget
+   * defaultConfig, adds missing defaultConfig properties and values recursilvly to
+   * configuration.
+   *
+   * The changes are not persisted until the configuration is saved.
+   *
+   * @protected
+   * @memberof BaseWidgetComponent
+   */
+  protected validateConfig() {
+    this.widgetProperties.config = cloneDeep(merge(this.defaultConfig, this.widgetProperties.config));
   }
 
   /**

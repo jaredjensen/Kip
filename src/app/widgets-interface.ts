@@ -104,8 +104,10 @@ export interface IWidgetSvcConfig {
   laylineEnable?: boolean;
   /** Used by wind Widget: upwind layline angle of the vessel applied to the UI feature */
   laylineAngle?: number;
-  /** Used by wind Widget: enable/disable sailSetup UI feature */
-  sailSetupEnable?: boolean;
+  /** Used by wind Widget: enable/disable sailPlan UI feature */
+  sailPlanEnable?: boolean;
+  /** Used by wind Widget: to store sailPlan configuration. Each array entries equals a sail setup */
+  sailPlan?: Array<ISailPlan>;
 
 
   /** Used by multiple gauge Widget: defines the UI layout */
@@ -160,10 +162,22 @@ export interface IWidgetSvcConfig {
  /** Used by IFrame widget: URL lo load in the iframe */
   widgetUrl?: string;
 
-
   /** Use by racetimer widget */
   timerLength?: number;
 }
+/**
+ * SailPlan object use in the Wind Widget to define array of sailPlans
+ *
+ * @export
+ * @interface ISailPlan
+ */
+export interface ISailPlan {
+  [x: number]: number,
+  label: string,
+  maxWind: number,
+  sailToReduce: number
+}
+
 /**
  * Widget Zones data highlights interface. Used to defined how current path data
  * value should be displayed/highlighted with respect to the zones configuration.
@@ -185,12 +199,6 @@ export interface IDataHighlight extends Array<{
 /**
  * Defines all possible properties for data paths. Combines both
  * both KIP and Signal K path features.
- *
- * @interface IWidgetPaths
- */
-
-/**
- *
  *
  * @export
  * @interface IWidgetPath

@@ -55,6 +55,7 @@ export class WidgetNumericComponent extends BaseWidgetComponent implements OnIni
   }
 
   ngOnInit() {
+    this.validateConfig();
     this.observeDataStream('numericPath', newValue => {
         this.dataValue = newValue.value;
 

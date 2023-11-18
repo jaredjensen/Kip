@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { Subscription, interval } from 'rxjs';
 import { BaseWidgetComponent } from '../../base-widget/base-widget.component';
 
-
 @Component({
   selector: 'app-widget-wind',
   templateUrl: './widget-wind.component.html'
@@ -79,11 +78,51 @@ export class WidgetWindComponent extends BaseWidgetComponent implements OnInit, 
       windSectorWindowSeconds: 10,
       laylineEnable: true,
       laylineAngle: 35,
-      sailSetupEnable: false
+      sailPlanEnable: false,
+      sailPlan: [
+        {
+          label: 'Full Sail',
+          maxWind: 10,
+          sailToReduce: -1
+        },
+        {
+          label: 'Main Reef 1',
+          maxWind: 16,
+          sailToReduce: 1
+        },
+        {
+          label: 'Genoa 70%',
+          maxWind: 20,
+          sailToReduce: 2
+        },
+        {
+          label: 'Main Reef 2',
+          maxWind: 24,
+          sailToReduce: 1
+        },
+        {
+          label: 'Genoa 30%',
+          maxWind: 30,
+          sailToReduce: 2
+        },
+        {
+          label: 'Main Reef 3',
+          maxWind: 35,
+          sailToReduce: 1
+        },
+        {
+          label: 'Storm',
+          maxWind: 100,
+          sailToReduce: 0
+        }
+      ]
     };
    }
 
   ngOnInit(): void {
+    this.validateConfig();
+
+
     this.observeDataStream('headingPath', newValue => {
       if (newValue.value === null) {
         this.currentHeading = 0;
@@ -211,5 +250,9 @@ export class WidgetWindComponent extends BaseWidgetComponent implements OnInit, 
     while (h3 > 359) { h3 = h3 - 359; }
     while (h3 < 0) { h3 = h3 + 359; }
     return h3;
+  }
+
+  public name() {
+
   }
 }
