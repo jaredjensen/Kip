@@ -72,7 +72,7 @@ export interface IWidgetSvcConfig {
   /** Set to True to limit all Widget's data paths selection of the configuration UI Paths panel to Self. ie. the user's vessel. Value of True will prevent listing of all Signal K known paths that come from buoy, towers, other vessels, etc. Else all Signal K know data will be listed for selection. Should be set to True unless you need non-self data paths such as monitoring remote vessels, etc. */
   filterSelfPaths?: boolean;
   /** An [key:string] Array of Signal K paths configuration. Used to name/identifie the path IWidgetPath object. Used for Observable setup*/
-  paths?:IPathArray;
+  paths?: IPathArray;
   /** Use by Autopilot Widget: key should match key in paths, specifies autopilot widget possible paths for AP mode */
   usage?: {
     [key: string]: string[];
@@ -107,7 +107,7 @@ export interface IWidgetSvcConfig {
   /** Used by wind Widget: enable/disable sailPlan UI feature */
   sailPlanEnable?: boolean;
   /** Used by wind Widget: to store sailPlan configuration. Each array entries equals a sail setup */
-  sailPlan?: Array<ISailPlan>;
+  sailPlan?: ISailPlanArray;
 
 
   /** Used by multiple gauge Widget: defines the UI layout */
@@ -165,6 +165,11 @@ export interface IWidgetSvcConfig {
   /** Use by racetimer widget */
   timerLength?: number;
 }
+
+export interface ISailPlanArray {
+  [key: string]: ISailPlan;
+}
+
 /**
  * SailPlan object use in the Wind Widget to define array of sailPlans
  *
@@ -172,7 +177,6 @@ export interface IWidgetSvcConfig {
  * @interface ISailPlan
  */
 export interface ISailPlan {
-  [x: number]: number,
   label: string,
   maxWind: number,
   sailToReduce: number

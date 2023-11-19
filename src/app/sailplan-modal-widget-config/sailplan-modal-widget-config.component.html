@@ -1,29 +1,12 @@
-<div class="tab-content" [formGroup]="formGroup">
+<div class="tab-content" [formGroup]="sailPlanFormGroup">
   <mat-checkbox
     placeholder="Enable Widget Sail Plan "
     formControlName="sailPlanEnable"
     name="sailPlanEnable">Enable Sail Plan
   </mat-checkbox>
-  <table mat-table [dataSource]="sailPlan">
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> ID </th>
-      <td mat-cell *matCellDef="let sailPlan"> {{sailPlan.key}} </td>
-    </ng-container>
-    <ng-container matColumnDef="label">
-      <th mat-header-cell *matHeaderCellDef> Label </th>
-      <td mat-cell *matCellDef="let sailPlan"> {{sailPlan.label}} </td>
-    </ng-container>
-    <ng-container matColumnDef="maxWind">
-      <th mat-header-cell *matHeaderCellDef> Max Wind </th>
-      <td mat-cell *matCellDef="let sailPlan"> {{sailPlan.maxWind}} </td>
-    </ng-container>
-    <ng-container matColumnDef="sailToReduce">
-      <th mat-header-cell *matHeaderCellDef> Reduced Sail </th>
-      <td mat-cell *matCellDef="let sailPlan"> {{sailPlan.sailToReduce}} </td>
-    </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+<div *ngFor="let sailPlanFormGroup of sailPlanFormGroup['controls'] | objectKeys; index as i">
+  <span>sailPlanFormGroup.label</span>
+</div>
 
-  </table>
 </div>

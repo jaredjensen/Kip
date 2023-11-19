@@ -24,5 +24,6 @@
     "preserveWhitespaces": false,
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
+
   }
 }

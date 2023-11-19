@@ -150,8 +150,8 @@
           <span *ngIf="!formMaster.controls.paths.valid" class="warning fa fa-exclamation-circle"></span> Paths
         </ng-template>
         <modal-path-selector class="full-width"
-          *ngFor="let pathForm of formMaster['controls'].paths['controls'] | objectKeys"
-          [formGroup]="formMaster.controls.paths.get(pathForm)"
+          *ngFor="let pathFormGroup of formMaster['controls'].paths['controls'] | objectKeys"
+          [formGroup]="formMaster.controls.paths.get(pathFormGroup)"
           [filterSelfPaths]="formMaster.value.filterSelfPaths">
         </modal-path-selector>
         <mat-checkbox name="filterSelfPaths" formControlName="filterSelfPaths">Restrict to own vessel</mat-checkbox>
@@ -350,7 +350,8 @@
 <!-- Sailplan stuff -->
       <mat-tab label="Sail Plan" *ngIf="widgetConfig.sailPlanEnable !== undefined">
         <app-sailplan-modal-widget-config
-          [formGroup]="formMaster">
+          [sailPlanEnable]="formMaster.controls.sailPlanEnable">
+          [sailPlanFormGroup]="formMaster.controls.sailPlan">
         </app-sailplan-modal-widget-config>
       </mat-tab>
 

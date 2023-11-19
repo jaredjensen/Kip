@@ -79,43 +79,44 @@ export class WidgetWindComponent extends BaseWidgetComponent implements OnInit, 
       laylineEnable: true,
       laylineAngle: 35,
       sailPlanEnable: false,
-      sailPlan: [
-        {
+      sailPlan: {
+        "full": {
           label: 'Full Sail',
           maxWind: 10,
           sailToReduce: -1
         },
-        {
+        "1": {
           label: 'Main Reef 1',
           maxWind: 16,
           sailToReduce: 1
         },
-        {
+        "2": {
           label: 'Genoa 70%',
           maxWind: 20,
           sailToReduce: 2
         },
-        {
+        "3": {
           label: 'Main Reef 2',
           maxWind: 24,
           sailToReduce: 1
         },
-        {
+        "4": {
           label: 'Genoa 30%',
           maxWind: 30,
           sailToReduce: 2
         },
-        {
+        "5": {
           label: 'Main Reef 3',
           maxWind: 35,
           sailToReduce: 1
         },
+        "storm" :
         {
           label: 'Storm',
           maxWind: 100,
           sailToReduce: 0
         }
-      ]
+      }
     };
    }
 
