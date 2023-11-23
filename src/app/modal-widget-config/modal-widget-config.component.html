@@ -349,9 +349,15 @@
 
 <!-- Sailplan stuff -->
       <mat-tab label="Sail Plan" *ngIf="widgetConfig.sailPlanEnable !== undefined">
+        <mat-checkbox
+          placeholder="Enable Widget Sail Plan "
+          formControlName="sailPlanEnable"
+          name="sailPlanEnable">Enable Sail Plan
+        </mat-checkbox>
         <app-sailplan-modal-widget-config
-          [sailPlanEnable]="formMaster.controls.sailPlanEnable">
-          [sailPlanFormGroup]="formMaster.controls.sailPlan">
+          *ngFor="let sailPlanGroup of formMaster['controls'].sailPlan['controls'] | objectKeys"
+          [sailPlanSailFormGroup]="formMaster.controls.sailPlan.get(sailPlanGroup)"
+          [sailPlanEnable]="formMaster.value.sailPlanEnable">
         </app-sailplan-modal-widget-config>
       </mat-tab>
 

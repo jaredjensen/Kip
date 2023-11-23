@@ -1,12 +1,16 @@
-<div class="tab-content" [formGroup]="sailPlanFormGroup">
-  <mat-checkbox
-    placeholder="Enable Widget Sail Plan "
-    formControlName="sailPlanEnable"
-    name="sailPlanEnable">Enable Sail Plan
-  </mat-checkbox>
-
-<div *ngFor="let sailPlanFormGroup of sailPlanFormGroup['controls'] | objectKeys; index as i">
-  <span>sailPlanFormGroup.label</span>
-</div>
-
+<div class="tab-content" [formGroup]="sailPlanSailFormGroup">
+  <div class="full-width">
+    <mat-form-field class="minField" appearance="outline" floatLabel="always">
+      <mat-label>Label</mat-label>
+      <input type="text" matInput placeholder="Setup label..." name="label"  formControlName="label">
+    </mat-form-field>
+    <mat-form-field class="minField" appearance="outline" floatLabel="always">
+      <mat-label>Maximum Winds Speed</mat-label>
+      <input type="number" min="0" max="100" matInput placeholder="Knots value..." name="maxWind"  formControlName="maxWind">
+    </mat-form-field>
+    <mat-form-field class="maxField" appearance="outline" floatLabel="always">
+      <mat-label>Sail</mat-label>
+      <input type="number" min="-1" max="2" matInput placeholder="Enter or select number..." name="sailToReduce"  formControlName="sailToReduce">
+    </mat-form-field>
+  </div>
 </div>

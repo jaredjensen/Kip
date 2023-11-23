@@ -8,12 +8,11 @@ import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 })
 export class SailplanModalWidgetConfigComponent implements OnInit {
   @Input() sailPlanEnable: UntypedFormControl;
-  @Input() sailPlanFormGroup: UntypedFormGroup;
+  @Input() sailPlanSailFormGroup: UntypedFormGroup;
 
   constructor() { }
 
   ngOnInit(): void {
     // this.sailPlanFormGroup.controls['sailPlan'].value;
   }
-
 }
