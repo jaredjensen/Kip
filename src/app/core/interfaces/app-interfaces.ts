@@ -55,17 +55,37 @@ import { ISkMetadata, TState } from "./signalk-interfaces";
   meta?: ISkMetadata;
 }
 
+
 /**
- * An App data structure that represents meta values of a path.
- *
- * Use by: modal-path-selection (consumer), Zones component, and Signal K (internal
- * data source) service
+ * Interface that defines a path's meta data object.
  *
  * @memberof app-interfaces
  */
  export interface IPathMetaData {
   path: string;
   meta?: ISkMetadata;
+}
+
+/**
+ * Interface that defines path meta data object augmented with meta.type for improved
+ * filtering and searching.
+ *
+ * @memberof app-interfaces
+ */
+export interface IMetaServicePathMeta {
+  path: string;
+  meta: IMetadata;
+}
+
+/**
+ * Interface that extends Signal K ISkMetadata to adds path data Type
+ * used to enhance filtering and identification.
+ *
+ * @memberof app-interfaces
+ */
+export interface IMetadata extends ISkMetadata {
+  /** TS type of the path's data value */
+  type?: string;
 }
 
 export interface IDefaultSource {

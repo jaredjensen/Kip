@@ -1,0 +1,281 @@
+@use '~@angular/material' as mat;
+
+@mixin theme-settings-meta($theme) {
+  $primary: map-get($theme, primary);
+  $accent: map-get($theme, accent);
+  $warn: map-get($theme, warn);
+  $background: map-get($theme, background);
+  $foreground: map-get($theme, foreground);
+
+  app-settings-meta {
+    .zone-headers {
+      width: 100%;
+      display: inline-flex;
+      gap: 5px;
+      height: 56px;
+      min-height: 56px;
+      border-bottom: 1px;
+      border-color: mat.get-color-from-palette($theme, divider);
+    }
+  }
+
+  dialog-edit-meta-properties {
+    .group-control-box {
+      border-color: mat.get-color-from-palette($foreground, divider);
+      border-width: 1px;
+      border-style: solid;
+      border-radius: 5px;
+      padding-top: 10px;
+      margin-bottom: 10px;
+      padding-left: 20px;
+      padding-right: 7px;
+    }
+  }
+}
+
+.item-flex {
+  flex:auto;
+}
+
+.mat-dialog-content {
+  max-height: 55vh;
+}
+
+.full-display {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 500;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.fill-available {
+  width: -webkit-fill-available;
+}
+
+.buttons:first-of-type {
+  margin-right: 5px;
+}
+
+.dont-show {
+  visibility: hidden;
+}
+
+.pathCell {
+  flex: 1 1 50%;
+}
+
+.pathHeader {
+  flex: 1 1 50%;
+}
+
+.dataHeader {
+  flex: 1 1 8%;
+  justify-content: center;
+}
+
+.dataCell {
+  flex: 1 1 8%;
+  justify-content: center;
+}
+
+.actionHeader {
+  flex: 1 1 20%;
+}
+
+.actionCell {
+  flex: 1 1 20%;
+  justify-content: end;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: flex-start;
+  gap: 10px 10px;
+}
+
+.zone-flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: flex-start;
+  gap: 0px 0px;
+}
+
+.editor {
+  width: 100%;
+}
+
+.editor-row {
+  gap: 10px;
+}
+
+.editor-path-cell {
+flex: 1 1 80%;
+}
+
+.editor-units-cell {
+  width: 55px;
+}
+
+.editor-action-cell {
+  width: 100%;
+  text-align: right;
+}
+
+.zone-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: space-between;
+}
+
+.properties-flex-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: flex-start;
+  gap: 0px 0px;
+}
+
+.properties-row {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: space-between;
+  gap: 0px 10px;
+}
+
+.propreties-cell-half-size {
+flex: 1 1 45%;
+}
+
+.properties-field-with-info {
+  width: calc(100% - 40px);
+}
+
+.properties-scale-type {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.properties-scale-values {
+  padding-right: 20px;
+}
+
+.properties-method-row {
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.properties-method-cell {
+  flex: 1 1 30%;
+}
+
+.properties-method-cell-label {
+  flex: 1 1 30%;
+  justify-content: end;
+  display: flex;
+}
+
+.zone-title-divider {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.zone-fields {
+  padding-left: 20px;
+}
+
+.zone-fields-value {
+  width: 45%;
+}
+
+
+
+.zone-fields div.mat-form-field-wrapper {
+  padding-bottom: 0px;
+}
+
+@media screen and (max-height: 740px) {
+  .mat-dialog-content {
+    max-height: 40vh;
+  }
+}
+
+ @media screen and (max-width: 750px) {
+  .pathHeader {
+    flex: 1 1 30%;
+  }
+
+  .dataHeader {
+    flex: 1 1 30%;
+  }
+
+  .actionHeader {
+    display: none;
+  }
+
+  .mat-table .mat-cell:before {
+    content: attr(data-label);
+    float: left;
+    padding-right: 5px;
+    word-break: keep-all;
+  }
+
+  .pathCell {
+    word-break: break-all !important;
+  }
+
+  mat-row::after {
+    min-height: auto;
+    padding-bottom: 10px;
+  }
+
+  .dataRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dataCell {
+    margin-left: 24px;
+  }
+
+  .actionCell {
+    margin-left: 24px;
+  }
+
+  .large-width {
+    width: 100%;
+  }
+
+  .small-width {
+    width: 100%;
+  }
+
+  .editor-units-cell {
+    width: 100%;
+  }
+
+  .zone-fields-value {
+    width: 100%;
+  }
+
+}

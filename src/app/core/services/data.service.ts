@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable , BehaviorSubject, Subscription, ReplaySubject, Subject, map, combineLatest, of } from 'rxjs';
-import { ISkPathData, IPathValueData, IPathMetaData, IMeta} from "../interfaces/app-interfaces";
+import { ISkPathData, IPathValueData, IPathMetaData, IMeta, IMetaServicePathMeta, IMetadata} from "../interfaces/app-interfaces";
 import { ISignalKDataValueUpdate, ISkMetadata, ISignalKNotification, States, TState } from '../interfaces/signalk-interfaces'
 import { SignalKDeltaService } from './signalk-delta.service';
 import { cloneDeep,merge } from 'lodash-es';
@@ -40,23 +40,26 @@ const isRfc3339StringDate = (date: Date | string): boolean => {
 };
 
 /**
- * A path registration is an object used to track a path's Subjects. Each registration
- * is used to share the same Subject to multiple Observers using subscribePath()
- * and unsubscribePath() methods which returns the registration's subject as an
- * Observable.
+ * An interface for a path registration object. A path registration object is used to track a path's data Subjects.
+ * Each registration is used to share the same Subject with multiple Observers. This is achieved by using the
+ * subscribePath() and unsubscribePath() methods, which return the registration's subject as an Observable.
  *
- * @param {string} uuid The UUID for the widget registering the path
- * @param {string} path A Signal K path
- * @param {string} source Set Signal K data path source when multiple sources exists for the same path. If set, the Signal K default source will be ignored.
- * @param {string} subject A rxjs BehaviorSubject of Type IPathData used to return Observable
- * @interface pathRegistration
+ * @param {string} path - A Signal K path.
+ * @param {string} source - The Signal K data path source. This is used when multiple sources exist for the same path.
+ *                          If set, the Signal K default source will be ignored.
+ * @param {BehaviorSubject<IPathData>} _pathData$ - A private BehaviorSubject of type IPathData used to return an Observable.
+ * @param {BehaviorSubject<TState>} _pathState$ - A private BehaviorSubject of type TState.
+ * @param {BehaviorSubject<IPathUpdate>} pathDataUpdate$ - A BehaviorSubject emits all necessary path values for widgets. This combines _pathData$ and _pathState$ Observers.
+ * @param {BehaviorSubject<ISkMetadata | null>} pathMeta$ - A BehaviorSubject that emits metadata of type ISkMetadata or null.
+ *
+ * @interface IPathRegistration
  */
 interface IPathRegistration {
   path: string;
   source: string;
   _pathData$: BehaviorSubject<IPathData>;
   _pathState$: BehaviorSubject<TState>;
-  pathDataUpdate$: BehaviorSubject<IPathUpdate>; // pathValue and pathState combined subject for Observers ie: widgets
+  pathDataUpdate$: BehaviorSubject<IPathUpdate>;
   pathMeta$: BehaviorSubject<ISkMetadata | null>;
 }
 
@@ -86,9 +89,9 @@ export class DataService implements OnDestroy {
   private _skDataSubject$ = new BehaviorSubject<ISkPathData[]>([]);
 
   // Full skMeta updates for Zones component
-  private _dataServiceMeta: IPathMetaData[] = [];
+  private _dataServiceMeta: IMetaServicePathMeta[] = [];
   private _isSkMetaFullTreeActive: boolean = false;
-  private _dataServiceMetaSubject$ = new BehaviorSubject<IPathMetaData[]>([]);
+  private _dataServiceMetaSubject$ = new BehaviorSubject<IMetaServicePathMeta[]>([]);
 
   // Notifications
   private _skNotificationMsg$ = new Subject<ISignalKDataValueUpdate>();
@@ -344,18 +347,25 @@ export class DataService implements OnDestroy {
 
       // If full meta tree is active, push the full tree
       if (this._isSkMetaFullTreeActive) {
-        this._dataServiceMeta.push({path: metaPath, meta: pathObject.meta});
+        let meta: IMetadata = cloneDeep(pathObject.meta);
+        meta.type = pathObject.type;
+
+        this._dataServiceMeta.push({path: metaPath, meta: meta});
         this._dataServiceMetaSubject$.next(this._dataServiceMeta);
       }
     }
   }
 
-  public startSkMetaFullTree(): Observable<IPathMetaData[]> {
+  public startSkMetaFullTree(): Observable<IMetaServicePathMeta[]> {
     this._isSkMetaFullTreeActive = true;
 
     this._dataServiceMeta = this._skData
       .filter(item => item.meta !== undefined && item.path.startsWith('self.'))
-      .map(item => ({path: item.path, meta: item.meta}));
+      .map(item => {
+        let meta: IMetadata = cloneDeep(item.meta);
+        meta.type = item.type;
+        return {path: item.path, meta: meta};
+      });
 
     this._dataServiceMetaSubject$.next(this._dataServiceMeta);
     return this._dataServiceMetaSubject$;
