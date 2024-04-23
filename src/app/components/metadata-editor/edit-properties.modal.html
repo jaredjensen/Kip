@@ -120,9 +120,11 @@
                 placeholder="Enter numeric value..."/>
             </mat-form-field>
           </div>
-          <mat-error class="zone-fields mat-form-field" *ngIf="propertiesForm.controls.displayScale.errors?.cantBeZero">
-            Type Logarithmic scale 'Start' and 'End' fields values cannot be zero
-          </mat-error>
+          @if (propertiesForm.controls.displayScale.errors?.cantBeZero) {
+            <mat-error class="zone-fields mat-form-field">
+              Type Logarithmic scale 'Start' and 'End' fields values cannot be zero
+            </mat-error>
+          }
         </div>
 
         <!-- Alert Methods -->

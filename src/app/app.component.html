@@ -52,6 +52,9 @@
   <button mat-menu-item routerLink="/settings">
     <div class="menu-items-with-icons"><i class="fa-solid fa-sliders" aria-hidden="true"></i>&nbsp;Settings</div>
   </button>
+  <button mat-menu-item (click)="openMetadataEditorDialog()">
+    <div class="menu-items-with-icons"><i class="fa-solid fa-toolbox" aria-hidden="true"></i>&nbsp;Zones</div>
+  </button>
   <button mat-menu-item [disabled]="!unlockStatus" (click)="newPage()">
     <div class="menu-items-with-icons"><i class="fa-solid fa-plus-square" aria-hidden="true"></i>&nbsp;Add Page</div>
   </button>

@@ -1,75 +1,72 @@
-<mat-card>
-  <mat-card-title>
-    Metadata Configuration
-  </mat-card-title>
-  <mat-card-subtitle>
-    <strong>WARNING: Metadata modifications effect changes to Signal K server configuration files. Changes cannot be rolled back and will affect all device communications and configurations. Know the impact of your changes before proceeding!</strong>
-    <p>Metadata is a key part of Signal K’s ability for data consumers such as apps like Kip or MFDs to automatically configure themselves based on settings retrieved from the server.</p>
-  </mat-card-subtitle>
-  <mat-card-content>
-    <mat-form-field>
-      <mat-label>Filter</mat-label>
-      <input matInput (keyup)="applyFilter($event)" placeholder="Ex: navigation" value="" #input>
-    </mat-form-field>
-    <div class="mat-elevation-z8 full-width table-container">
+<h2 mat-dialog-title>Metadata Configuration</h2>
+<mat-dialog-content>
+      <p>WARNING: Metadata modifications effect changes to Signal K server configuration files. Changes cannot be rolled back and will affect all device communications and configurations. Know the impact of your changes before proceeding!</p>
+      <p>Metadata is a key part of Signal K’s ability for data consumers such as apps like Kip or MFDs to automatically configure themselves based on settings retrieved from the server.</p>
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput mat-raised-button (keyup)="applyFilter($event)" placeholder="Ex: navigation" value="" #input>
+      </mat-form-field>
+      <div class="mat-elevation-z8 full-width table-container">
 
-      <mat-table class="full-display" [dataSource]="tableData" [trackBy]="trackByPath" matSort matSortActive="path" matSortDirection="asc">
+        <mat-table class="full-display" [dataSource]="tableData" [trackBy]="trackByPath" matSort matSortActive="path" matSortDirection="asc">
 
-        <!-- Path Column -->
-        <ng-container matColumnDef="path">
-          <mat-header-cell class="pathHeader" *matHeaderCellDef mat-sort-header>Path</mat-header-cell>
-          <mat-cell class="pathCell" *matCellDef="let element" data-label="Path: "> {{element.path}} </mat-cell>
-        </ng-container>
+          <!-- Path Column -->
+          <ng-container matColumnDef="path">
+            <mat-header-cell class="pathHeader" *matHeaderCellDef mat-sort-header>Path</mat-header-cell>
+            <mat-cell class="pathCell" *matCellDef="let element" data-label="Path: "> {{element.path}} </mat-cell>
+          </ng-container>
 
-         <!-- Type Column -->
-         <ng-container matColumnDef="meta.type">
-          <mat-header-cell class="dataHeader" *matHeaderCellDef mat-sort-header>Data Type</mat-header-cell>
-          <mat-cell class="dataCell" *matCellDef="let element" data-label="Data Type: ">
-            @if (element.meta.type === undefined) {
-              <span>--</span>
-            } @else {
-              <span>{{element.meta.type}}</span>
-            }
-          </mat-cell>
-        </ng-container>
-
-        <!-- Unit Column -->
-        <ng-container matColumnDef="meta.units">
-          <mat-header-cell class="dataHeader" *matHeaderCellDef mat-sort-header>Units</mat-header-cell>
-          <mat-cell class="dataCell" *matCellDef="let element" data-label="Units: ">
-            @if (element.meta.type === 'number') {
-              <span>{{element.meta.units}}</span>
-            } @else {
-              <span>--</span>
-            }
+          <!-- Type Column -->
+          <ng-container matColumnDef="meta.type">
+            <mat-header-cell class="dataHeader" *matHeaderCellDef mat-sort-header>Data Type</mat-header-cell>
+            <mat-cell class="dataCell" *matCellDef="let element" data-label="Data Type: ">
+              @if (element.meta.type === undefined) {
+                <span>--</span>
+              } @else {
+                <span>{{element.meta.type}}</span>
+              }
             </mat-cell>
-        </ng-container>
+          </ng-container>
 
-        <!-- Action Column -->
-        <ng-container matColumnDef="actions">
-          <mat-header-cell class="actionHeader" *matHeaderCellDef>  </mat-header-cell>
-          <mat-cell class="actionCell" *matCellDef="let element">
-            <button mat-raised-button class="buttons" color="accent" [disabled]="!hasToken" [class.dont-show]="element.meta.type === 'object'" (click)="openMetaDialog(element)">Properties</button>
-            <button mat-raised-button color="accent" [disabled]="!hasToken" [class.dont-show]="element.meta.type !== 'number'" (click)="openZonesDialog(element)">Zones</button>
-          </mat-cell>
-        </ng-container>
+          <!-- Unit Column -->
+          <ng-container matColumnDef="meta.units">
+            <mat-header-cell class="dataHeader" *matHeaderCellDef mat-sort-header>Units</mat-header-cell>
+            <mat-cell class="dataCell" *matCellDef="let element" data-label="Units: ">
+              @if (element.meta.type === 'number') {
+                <span>{{element.meta.units}}</span>
+              } @else {
+                <span>--</span>
+              }
+              </mat-cell>
+          </ng-container>
 
-        <!-- Table header -->
-        <mat-header-row class="headerRow" *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
-        <mat-row class="dataRow" *matRowDef="let row; columns: displayedColumns;"></mat-row>
+          <!-- Action Column -->
+          <ng-container matColumnDef="actions">
+            <mat-header-cell class="actionHeader" *matHeaderCellDef>  </mat-header-cell>
+            <mat-cell class="actionCell" *matCellDef="let element">
+              <button mat-raised-button class="buttons" color="accent" [disabled]="!hasToken" [class.dont-show]="element.meta.type === 'object'" (click)="openMetaDialog(element)">Properties</button>
+              <button mat-raised-button color="accent" [disabled]="!hasToken" [class.dont-show]="element.meta.type !== 'number'" (click)="openZonesDialog(element)">Zones</button>
+            </mat-cell>
+          </ng-container>
 
-        <!-- Row shown when there is no matching data. Material bug here... -->
-        <mat-row *matNoDataRow>
-          No data matching the filter "{{input.value}}"
-        </mat-row>
-      </mat-table>
+          <!-- Table header -->
+          <mat-header-row class="headerRow" *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+          <mat-row class="dataRow" *matRowDef="let row; columns: displayedColumns;"></mat-row>
 
-    </div>
-    <div class="paginator mat-elevation-z1">
-      <mat-paginator pageSize="5" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
-    </div>
-  </mat-card-content>
-  <mat-divider inset></mat-divider>
-  <mat-card-actions align="end">
-  </mat-card-actions>
-</mat-card>
+          <!-- Row shown when there is no matching data. Material bug here... -->
+          <mat-row *matNoDataRow>
+            No data matching the filter "{{input.value}}"
+          </mat-row>
+        </mat-table>
+
+      </div>
+      <div class="paginator mat-elevation-z1">
+        <mat-paginator pageSize="5" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+      </div>
+
+
+</mat-dialog-content>
+<mat-divider></mat-divider>
+<mat-dialog-actions>
+  <button mat-raised-button (click)="onNoClick()" cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

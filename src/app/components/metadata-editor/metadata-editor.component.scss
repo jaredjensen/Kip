@@ -1,13 +1,14 @@
-@use '~@angular/material' as mat;
+@use 'sass:map';
+@use '@angular/material' as mat;
 
-@mixin theme-settings-meta($theme) {
+@mixin theme-metadata-editor($theme) {
   $primary: map-get($theme, primary);
   $accent: map-get($theme, accent);
   $warn: map-get($theme, warn);
   $background: map-get($theme, background);
   $foreground: map-get($theme, foreground);
 
-  app-settings-meta {
+  metadata-editor {
     .zone-headers {
       width: 100%;
       display: inline-flex;
@@ -88,7 +89,7 @@
 
 .actionCell {
   flex: 1 1 20%;
-  justify-content: end;
+  justify-content: flex-end;
 }
 
 .flex-container {
@@ -190,7 +191,7 @@ flex: 1 1 45%;
 
 .properties-method-cell-label {
   flex: 1 1 30%;
-  justify-content: end;
+  justify-content: flex-end;
   display: flex;
 }
 

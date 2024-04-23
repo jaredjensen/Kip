@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef, Inject } from '@angular/core';
-import { DataService } from '../../core/services/data.service';
-import { ISkMetadata, ISkZone } from '../../core/interfaces/signalk-interfaces';
-import { IMetaServicePathMeta, IPathMetaData } from '../../core/interfaces/app-interfaces';
 import { Subscription } from 'rxjs';
+import { DataService } from '../../core/services/data.service';
+import { IMetaServicePathMeta, IPathMetaData } from '../../core/interfaces/app-interfaces';
 import { ISkBaseUnit, UnitsService } from '../../core/services/units.service';
 import { AuthenticationService } from '../../core/services/authentication.service';
+import { ISkZone } from '../../core/interfaces/signalk-interfaces';
 import { cloneDeep } from 'lodash-es';
 
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -20,11 +20,13 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'metadata-editor',
   standalone: true,
-  imports: [ FormsModule, ReactiveFormsModule, MatFormFieldModule, MatTableModule, MatPaginatorModule, MatCardModule, MatDividerModule],
+  imports: [ FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatPaginatorModule, MatCardModule, MatDividerModule, MatDialogModule],
   templateUrl: './metadata-editor.component.html',
   styleUrl: './metadata-editor.component.scss'
 })
@@ -40,6 +42,7 @@ export class MetadataEditorComponent implements OnInit, OnDestroy, AfterViewInit
   public hasToken: boolean = false;
 
   constructor(
+    public dialogRef: MatDialogRef<MetadataEditorComponent>,
     private data: DataService,
     private auth: AuthenticationService,
     public dialog: MatDialog,
@@ -66,12 +69,7 @@ export class MetadataEditorComponent implements OnInit, OnDestroy, AfterViewInit
     // data service Meta observer for full tree
     this.metaSub = this.data.startSkMetaFullTree().subscribe((metaArray: IMetaServicePathMeta[]) => {
       this.tableData.data = metaArray
-        .filter(item => item.meta && item.meta.zones && item.meta.zones.length > 0)
-        .map(item => ({
-          path: item.path,
-
-          zones: item.meta.zones
-        }));
+        .filter(item => item.meta && item.meta.zones && item.meta.zones.length > 0);
     });
 
     // logged in observer
@@ -132,6 +130,10 @@ export class MetadataEditorComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
+
   ngOnDestroy(): void {
     this.metaSub?.unsubscribe();
     this.tokenSub?.unsubscribe();
@@ -168,7 +170,7 @@ export function displayScaleValidator(): ValidatorFn {
   templateUrl: './edit-properties.modal.html',
   styleUrls: ['./metadata-editor.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatOptionModule, MatButtonModule, MatButtonToggleModule, MatDividerModule, MatDialogModule, MatTooltipModule]
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatOptionModule, MatButtonModule, MatButtonToggleModule, MatDividerModule, MatDialogModule, MatTooltipModule]
 })
 export class DialogEditMetaProperties implements OnInit, OnDestroy {
 
@@ -339,7 +341,7 @@ export function rangeValidator(): ValidatorFn {
   templateUrl: './edit-zones.modal.html',
   styleUrls: ['./metadata-editor.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatOptionModule, MatButtonModule, MatButtonToggleModule, MatDividerModule, MatDialogModule, MatTooltipModule, MatMenuModule]
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatOptionModule, MatButtonModule, MatButtonToggleModule, MatDividerModule, MatDialogModule, MatTooltipModule, MatMenuModule]
 })
 export class DialogEditZones implements OnInit {
 

@@ -11,7 +11,7 @@ describe('MetadataEditorComponent', () => {
       imports: [MetadataEditorComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(MetadataEditorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

@@ -32,6 +32,7 @@
 @import 'app/widgets/widget-race-timer/widget-race-timer.component.scss';
 @import 'app/widgets/widget-autopilot/widget-autopilot.component.scss';
 @import 'app/widgets/widget-wind/widget-wind.component.scss';
+@import 'app/components/metadata-editor/metadata-editor.component.scss';
 
 
 @mixin theme-kip-components($theme) {
@@ -44,6 +45,7 @@
   @include widget-wind-theme($theme);
   @include theme-settings-sk($theme);
   @include theme-settings-config($theme);
+  @include theme-metadata-editor($theme);
 }
 
 @include mat.all-component-themes($theme);

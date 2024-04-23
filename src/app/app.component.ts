@@ -17,6 +17,8 @@ import { MatMenuTrigger, MatMenu, MatMenuItem } from '@angular/material/menu';
 import { MatButton } from '@angular/material/button';
 import { AlarmMenuComponent } from './alarm-menu/alarm-menu.component';
 import { RouterOutlet, RouterLink } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { MetadataEditorComponent } from './components/metadata-editor/metadata-editor.component';
 
 declare var NoSleep: any; //3rd party
 
@@ -25,7 +27,7 @@ declare var NoSleep: any; //3rd party
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.scss'],
     standalone: true,
-    imports: [RouterOutlet, AlarmMenuComponent, MatButton, MatMenuTrigger, MatMenu, MatMenuItem, RouterLink, NgIf]
+    imports: [RouterOutlet, AlarmMenuComponent, MatButton, MatMenuTrigger, MatMenu, MatMenuItem, RouterLink, NgIf,]
 })
 export class AppComponent implements OnInit, OnDestroy {
 
@@ -58,6 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
     public authenticationService: AuthenticationService,
     private deltaService: SignalKDeltaService,
     private appService: AppService,
+    public dialog: MatDialog
     ) {}
 
 
@@ -225,11 +228,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.fullscreenStatus = !this.fullscreenStatus;
   }
 
+  public openMetadataEditorDialog() {
+    const dialogRef = this.dialog.open(MetadataEditorComponent, {
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+
   ngOnDestroy() {
     this.unlockStatusSub.unsubscribe();
     this.themeNameSub.unsubscribe();
     this.appNotificationSub.unsubscribe();
     this.connectionStatusSub.unsubscribe();
   }
-
 }
